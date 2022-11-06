@@ -10,6 +10,7 @@ import (
 )
 
 func SignUp(c *gin.Context) {
+	var err error
 	var json param.ReqSignUp
 	if err := c.ShouldBindJSON(&json); err != nil {
 		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
@@ -30,12 +31,17 @@ func SignUp(c *gin.Context) {
 		School:   json.School,
 		Website:  json.Website,
 	}
-	id, err := m.CreateUser(u)
-	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())
+	if u, err = m.FindUser(json.Username); err != nil {
+		id, err := m.CreateUser(u)
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())
+			return
+		}
+		response.Success(c, gin.H{"id": id}, "Sign up successfully! ")
+	} else {
+		response.Error(c, http.StatusBadRequest, "Username already exists. ")
 		return
 	}
-	response.Success(c, gin.H{"id": id}, "Sign up successfully! ")
 }
 
 func SignIn(c *gin.Context) {

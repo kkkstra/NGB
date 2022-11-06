@@ -9,7 +9,7 @@ type Response struct {
 	Code int         `json:"code"`
 	Data interface{} `json:"data,omitempty"`
 	Msg  string      `json:"msg"`
-	Err  string      `json:"error,omitempty"`
+	Err  []string    `json:"error,omitempty"`
 }
 
 func Success(c *gin.Context, data interface{}, msg string) {
@@ -20,7 +20,7 @@ func Success(c *gin.Context, data interface{}, msg string) {
 	})
 }
 
-func Error(c *gin.Context, status int, msg string, err string) {
+func Error(c *gin.Context, status int, msg string, err ...string) {
 	c.JSON(status, Response{
 		Code: status,
 		Msg:  msg,
