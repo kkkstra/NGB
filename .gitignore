@@ -2,3 +2,4 @@ upload
 task.md
 env/config/config.yaml
 bin
+*pem
