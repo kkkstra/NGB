@@ -26,13 +26,14 @@ func SignUp(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	m := model.GetModel()
 	u := &model.User{
 		Username: json.Username,
 		Email:    json.Email,
 		Password: hashedPassword,
 		Intro:    json.Intro,
 	}
-	id, err := u.Insert()
+	id, err := m.Insert(u)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -1,3 +1,5 @@
+app:
+  addr: ""
 postgresql:
   host: ""
   port: ""

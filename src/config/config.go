@@ -7,7 +7,12 @@ import (
 )
 
 type Config struct {
+	App        app        `yaml:"app"`
 	Postgresql postgresql `yaml:"postgresql"`
+}
+
+type app struct {
+	Addr string `yaml:"addr"`
 }
 
 type postgresql struct {
