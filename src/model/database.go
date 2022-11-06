@@ -19,7 +19,6 @@ func init() {
 	migrateSchema()
 }
 
-// connectDatabase 连接数据库
 func connectDatabase() {
 	var err error
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
@@ -36,7 +35,6 @@ func connectDatabase() {
 	}
 }
 
-// migrateSchema 迁移schema
 func migrateSchema() {
 	if err := db.AutoMigrate(schemas...); err != nil {
 		panic(err)
