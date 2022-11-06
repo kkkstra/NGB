@@ -2,16 +2,18 @@ package main
 
 import (
 	"byitter/src/controller"
+	"byitter/src/model"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.Default()
 
-	user := router.Group("/user")
-	{
-		user.GET("register", controller.SignUp)
-	}
+	model.ConnectDatabase()
+	model.MigrateSchema()
 
-	_ = router.Run(":7777")
+	user := router.Group("/user")
+	user.POST("signup", controller.SignUp)
+
+	router.Run(":7777")
 }
