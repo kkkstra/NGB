@@ -10,7 +10,8 @@ import (
 var (
 	db      *gorm.DB
 	schemas = []interface{}{
-		&User{},
+		&UserModel{},
+		&RSAKeyModel{},
 	}
 )
 

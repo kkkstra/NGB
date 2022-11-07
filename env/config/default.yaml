@@ -6,3 +6,5 @@ postgresql:
   user: ""
   password: ""
   dbname: ""
+debug:
+  enable: false

@@ -22,16 +22,17 @@ func SignUp(c *gin.Context) {
 		return
 	}
 	m := model.GetModel()
-	u := &model.User{
-		Username: json.Username,
-		Email:    json.Email,
-		Password: hashedPassword,
-		Intro:    json.Intro,
-		Github:   json.Github,
-		School:   json.School,
-		Website:  json.Website,
-	}
-	if u, err = m.FindUser(json.Username); err != nil {
+
+	if _, err = m.FindUser(json.Username); err != nil {
+		u := &model.UserModel{
+			Username: json.Username,
+			Email:    json.Email,
+			Password: hashedPassword,
+			Intro:    json.Intro,
+			Github:   json.Github,
+			School:   json.School,
+			Website:  json.Website,
+		}
 		id, err := m.CreateUser(u)
 		if err != nil {
 			response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())

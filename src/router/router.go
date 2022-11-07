@@ -9,5 +9,9 @@ import (
 func InitRouters(r *gin.Engine) {
 	r.Use(tls.LoadTls())
 	initUserRouters(r)
-	r.RunTLS(config.C.App.Addr, "./env/tls/localhost.pem", "./env/tls/localhost-key.pem")
+	if config.C.Debug.Enable {
+		r.RunTLS(config.C.App.Addr, "./env/tls/localhost.pem", "./env/tls/localhost-key.pem")
+	} else {
+		r.Run(config.C.App.Addr)
+	}
 }
