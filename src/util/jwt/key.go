@@ -39,8 +39,8 @@ func InitRSAKey() {
 				panic(err)
 				return
 			}
-			m := model.GetModel()
-			m.CreateRSAKey(keyType)
+			m := model.GetModel(&model.RSAKeyModel{})
+			m.(*model.RSAKeyModel).CreateRSAKey(keyType)
 		}
 	}
 	loadRSAkeys()
@@ -49,8 +49,8 @@ func InitRSAKey() {
 }
 
 func loadRSAkeys() {
-	m := model.GetModel()
-	keyList := m.FindRSAKey()
+	m := model.GetModel(&model.RSAKeyModel{})
+	keyList := m.(*model.RSAKeyModel).FindRSAKey()
 	for _, keyPem := range keyList {
 		publicKey, err := jwtgo.ParseRSAPublicKeyFromPEM([]byte(keyPem.PublicKey))
 		if err != nil {

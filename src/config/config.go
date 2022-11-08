@@ -11,7 +11,7 @@ type Config struct {
 	Postgresql postgresql `yaml:"postgresql"`
 	Init       initEnv    `yaml:"init"`
 	Debug      debug      `yaml:"debug"`
-	UserJWT    userJWT    `yaml:"user-jwt"`
+	User       userConf   `yaml:"user"`
 }
 
 type app struct {
@@ -27,6 +27,7 @@ type postgresql struct {
 }
 
 type initEnv struct {
+	Admin  bool `yaml:"admin"`
 	RsaKey bool `yaml:"rsa-key"`
 }
 
@@ -34,9 +35,20 @@ type debug struct {
 	Enable bool `yaml:"enable"`
 }
 
+type userConf struct {
+	UserJWT userJWT `yaml:"user-jwt"`
+	Admin   admin   `yaml:"admin"`
+}
+
 type userJWT struct {
 	Expire int    `yaml:"expire"`
 	Issuer string `yaml:"issuer"`
+}
+
+type admin struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Email    string `yaml:"email"`
 }
 
 const (

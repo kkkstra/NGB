@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type RSAKeyModel struct {
+type RSAKey struct {
 	gorm.Model
 	Kid        string
 	Type       string
@@ -14,9 +14,13 @@ type RSAKeyModel struct {
 	PrivateKey string
 }
 
-func (m *model) CreateRSAKey(keyType string) {
+type RSAKeyModel struct {
+	db *gorm.DB
+}
+
+func (m *RSAKeyModel) CreateRSAKey(keyType string) {
 	publicKey, privateKey := config.ReadRSAKeyFromFile(keyType)
-	key := RSAKeyModel{
+	key := RSAKey{
 		Kid:        uuid.New().String(),
 		Type:       keyType,
 		PublicKey:  publicKey,
@@ -28,8 +32,8 @@ func (m *model) CreateRSAKey(keyType string) {
 	}
 }
 
-func (m *model) FindRSAKey() []RSAKeyModel {
-	var keyList []RSAKeyModel
+func (m *RSAKeyModel) FindRSAKey() []RSAKey {
+	var keyList []RSAKey
 	res := m.db.Find(&keyList)
 	if res.Error != nil {
 		return nil

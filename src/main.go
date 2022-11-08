@@ -2,11 +2,11 @@ package main
 
 import (
 	"byitter/src/router"
-	"byitter/src/util/jwt"
+	"byitter/src/util/Init"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	jwt.InitRSAKey()
+	Init.InitEnv()
 	router.InitRouters(gin.Default())
 }

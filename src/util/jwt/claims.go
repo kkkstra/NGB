@@ -16,9 +16,9 @@ type ClaimsInterface interface {
 func getBasicClaim() *BasicClaims {
 	return &BasicClaims{
 		jwtgo.StandardClaims{
-			Issuer:    config.C.UserJWT.Issuer,
+			Issuer:    config.C.User.UserJWT.Issuer,
 			IssuedAt:  time.Now().Unix(),
-			ExpiresAt: time.Now().Add(time.Duration(config.C.UserJWT.Expire) * time.Hour).Unix(),
+			ExpiresAt: time.Now().Add(time.Duration(config.C.User.UserJWT.Expire) * time.Hour).Unix(),
 		},
 	}
 }
