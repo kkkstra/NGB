@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"byitter/src/model"
+	"errors"
 	jwtgo "github.com/dgrijalva/jwt-go"
 )
 
@@ -15,6 +16,7 @@ type TokenInterface interface {
 }
 
 type TokenStrInterface interface {
+	Str() string
 	ParseToken() (*jwtgo.Token, error)
 }
 
@@ -34,16 +36,17 @@ func GetToken(username string, role model.RoleType) (TokenStr, error) {
 	return str, nil
 }
 
-//func (t *TokenStr) ParseToken() (*jwtgo.Token, error) {
-//tokenClaims, err := jwtgo.ParseWithClaims(token, &UserClaims{}, func(token *jwtgo.Token) (interface{}, error) {
-//	return jwtSecret, nil
-//})
-//
-//if tokenClaims != nil {
-//	if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
-//		return claims, nil
-//	}
-//}
-//
-//return nil, err
-//}
+func (t *TokenStr) ParseToken(claims jwtgo.Claims) (*jwtgo.Token, error) {
+	tokenClaims, err := jwtgo.ParseWithClaims(t.Str(), claims, keyFunc)
+	if err != nil {
+		return nil, err
+	}
+	if !tokenClaims.Valid {
+		return nil, errors.New("Invalid token. ")
+	}
+	return tokenClaims, nil
+}
+
+func (t *TokenStr) Str() string {
+	return string(*t)
+}

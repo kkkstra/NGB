@@ -15,7 +15,7 @@ type RSAKeyModel struct {
 }
 
 func (m *model) CreateRSAKey(keyType string) {
-	publicKey, privateKey := config.ReadRSAKeyFromFile()
+	publicKey, privateKey := config.ReadRSAKeyFromFile(keyType)
 	key := RSAKeyModel{
 		Kid:        uuid.New().String(),
 		Type:       keyType,

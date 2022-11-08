@@ -1,8 +1,8 @@
 package main
 
 import (
-	"byitter/src/jwt"
 	"byitter/src/router"
+	"byitter/src/util/jwt"
 	"github.com/gin-gonic/gin"
 )
 

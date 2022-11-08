@@ -6,10 +6,8 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/json"
 	"encoding/pem"
 	jwtgo "github.com/dgrijalva/jwt-go"
-	"github.com/lestrrat-go/jwx/jwk"
 	"os"
 )
 
@@ -19,31 +17,34 @@ type RSAKey struct {
 	PrivateKey *rsa.PrivateKey
 }
 
-type JWK struct {
-	Kid string
-	E   string
-	Kty string
-	N   string
-}
+//type JWK struct {
+//	Kid string
+//	E   string
+//	Kty string
+//	N   string
+//}
 
 var (
+	rsaKeyList    = []string{"user_jwt"}
 	rsaKeys       = map[string]RSAKey{}
 	userJwtRSAKey *RSAKey
-	Jwks          []JWK
+	//Jwks          []JWK
 )
 
 func InitRSAKey() {
 	if config.C.Init.RsaKey {
-		err := GenerateRSAKey()
-		if err != nil {
-			panic(err)
-			return
+		for _, keyType := range rsaKeyList {
+			err := GenerateRSAKey(keyType)
+			if err != nil {
+				panic(err)
+				return
+			}
+			m := model.GetModel()
+			m.CreateRSAKey(keyType)
 		}
-		m := model.GetModel()
-		m.CreateRSAKey("user_jwt")
 	}
 	loadRSAkeys()
-	loadJWKs()
+	//loadJWKs()
 	//fmt.Println(userJwtRSAKey)
 }
 
@@ -74,39 +75,7 @@ func loadRSAkeys() {
 	}
 }
 
-func loadJWKs() {
-	for _, rsaKey := range rsaKeys {
-		pubKey, err := jwk.New(rsaKey.PublicKey)
-		if err != nil {
-			panic(err)
-			return
-		}
-		if _, ok := pubKey.(jwk.RSAPublicKey); !ok {
-			panic(err)
-			return
-		}
-		err = pubKey.Set(jwk.KeyIDKey, rsaKey.Kid)
-		if err != nil {
-			panic(err)
-			return
-		}
-		buf, err := json.MarshalIndent(pubKey, "", "  ")
-		if err != nil {
-			panic(err)
-			return
-		}
-
-		jwkey := &JWK{}
-		err = json.Unmarshal(buf, jwkey)
-		if err != nil {
-			panic(err)
-			return
-		}
-		Jwks = append(Jwks, *jwkey)
-	}
-}
-
-func GenerateRSAKey() error {
+func GenerateRSAKey(keyType string) error {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		return err
@@ -116,7 +85,7 @@ func GenerateRSAKey() error {
 		Type:  "RSA PRIVATE KEY",
 		Bytes: derStream,
 	}
-	file, err := os.Create("./env/RSAKey/" + config.PrivateKeyFile)
+	file, err := os.Create("./env/RSAKey/" + keyType + "-" + config.PrivateKeyFile)
 	if err != nil {
 		return err
 	}
@@ -135,7 +104,7 @@ func GenerateRSAKey() error {
 		Type:  "RSA PUBLIC KEY",
 		Bytes: derPkix,
 	}
-	file, err = os.Create("./env/RSAKey/" + config.PublicKeyFile)
+	file, err = os.Create("./env/RSAKey/" + keyType + "-" + config.PublicKeyFile)
 	if err != nil {
 		return err
 	}
@@ -145,4 +114,48 @@ func GenerateRSAKey() error {
 	}
 	file.Close()
 	return nil
+}
+
+//func loadJWKs() {
+//	for _, rsaKey := range rsaKeys {
+//		pubKey, err := jwk.New(rsaKey.PublicKey)
+//		if err != nil {
+//			panic(err)
+//			return
+//		}
+//		if _, ok := pubKey.(jwk.RSAPublicKey); !ok {
+//			panic(err)
+//			return
+//		}
+//		err = pubKey.Set(jwk.KeyIDKey, rsaKey.Kid)
+//		if err != nil {
+//			panic(err)
+//			return
+//		}
+//		buf, err := json.MarshalIndent(pubKey, "", "  ")
+//		if err != nil {
+//			panic(err)
+//			return
+//		}
+//
+//		jwkey := &JWK{}
+//		err = json.Unmarshal(buf, jwkey)
+//		if err != nil {
+//			panic(err)
+//			return
+//		}
+//		Jwks = append(Jwks, *jwkey)
+//	}
+//}
+
+var keyFunc = func(t *jwtgo.Token) (interface{}, error) {
+	switch t.Method.Alg() {
+	case jwtgo.SigningMethodRS256.Alg():
+		if kid, ok := t.Header["kid"].(string); ok {
+			if key, ok := rsaKeys[kid]; ok {
+				return key.PublicKey, nil
+			}
+		}
+	}
+	return nil, nil
 }

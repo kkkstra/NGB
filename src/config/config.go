@@ -62,13 +62,13 @@ func init() {
 	C = config
 }
 
-func ReadRSAKeyFromFile() (publicKey, privateKey string) {
-	publicKeyByte, err := os.ReadFile(fmt.Sprintf("./env/RSAKey/%s", PublicKeyFile))
+func ReadRSAKeyFromFile(keyType string) (publicKey, privateKey string) {
+	publicKeyByte, err := os.ReadFile(fmt.Sprintf("./env/RSAKey/%s", keyType+"-"+PublicKeyFile))
 	if err != nil {
 		panic(err)
 		return
 	}
-	privateKeyByte, err := os.ReadFile(fmt.Sprintf("./env/RSAKey/%s", PrivateKeyFile))
+	privateKeyByte, err := os.ReadFile(fmt.Sprintf("./env/RSAKey/%s", keyType+"-"+PrivateKeyFile))
 	if err != nil {
 		panic(err)
 		return

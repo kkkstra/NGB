@@ -10,6 +10,9 @@ type BasicClaims struct {
 	jwtgo.StandardClaims
 }
 
+type ClaimsInterface interface {
+}
+
 func getBasicClaim() *BasicClaims {
 	return &BasicClaims{
 		jwtgo.StandardClaims{
