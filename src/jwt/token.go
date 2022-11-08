@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"byitter/src/model"
 	jwtgo "github.com/dgrijalva/jwt-go"
 )
 
@@ -22,6 +23,15 @@ type TokenStr string
 func (t *Token) GenerateTokenStr() (TokenStr, error) {
 	token, err := t.SignedString(t.key)
 	return TokenStr(token), err
+}
+
+func GetToken(username string, role model.RoleType) (TokenStr, error) {
+	t := GenerateUserJwt(username, role)
+	str, err := t.GenerateTokenStr()
+	if err != nil {
+		return "", err
+	}
+	return str, nil
 }
 
 //func (t *TokenStr) ParseToken() (*jwtgo.Token, error) {

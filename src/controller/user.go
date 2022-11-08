@@ -3,6 +3,7 @@ package controller
 import (
 	"byitter/src/controller/param"
 	"byitter/src/controller/response"
+	"byitter/src/jwt"
 	"byitter/src/model"
 	"byitter/src/util"
 	"github.com/gin-gonic/gin"
@@ -58,7 +59,12 @@ func SignIn(c *gin.Context) {
 	}
 
 	if ok, err := util.CheckPasswordHash(json.Password, u.Password); ok {
-		response.Success(c, gin.H{"id": u.ID}, "Sign in successfully! ")
+		token, err := jwt.GetToken(json.Username, u.Role)
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
+			return
+		}
+		response.Success(c, gin.H{"token": token}, "Sign in successfully! ")
 		return
 	} else {
 		response.Error(c, http.StatusBadRequest, "Password is wrong! ", err.Error())

@@ -15,7 +15,7 @@ type UserClaims struct {
 	Role     model.RoleType `json:"rol"`
 }
 
-func GenerateUserJwtStr(username string, role model.RoleType) TokenInterface {
+func GenerateUserJwt(username string, role model.RoleType) TokenInterface {
 	claims := UserClaims{
 		getBasicClaim(),
 		username,

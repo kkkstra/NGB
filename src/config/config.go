@@ -35,7 +35,8 @@ type debug struct {
 }
 
 type userJWT struct {
-	Expire int `yaml:"expire"`
+	Expire int    `yaml:"expire"`
+	Issuer string `yaml:"issuer"`
 }
 
 const (

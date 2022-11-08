@@ -44,6 +44,7 @@ func InitRSAKey() {
 	}
 	loadRSAkeys()
 	loadJWKs()
+	//fmt.Println(userJwtRSAKey)
 }
 
 func loadRSAkeys() {

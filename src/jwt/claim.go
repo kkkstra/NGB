@@ -13,7 +13,7 @@ type BasicClaims struct {
 func getBasicClaim() *BasicClaims {
 	return &BasicClaims{
 		jwtgo.StandardClaims{
-			Issuer:    "",
+			Issuer:    config.C.UserJWT.Issuer,
 			IssuedAt:  time.Now().Unix(),
 			ExpiresAt: time.Now().Add(time.Duration(config.C.UserJWT.Expire) * time.Hour).Unix(),
 		},
