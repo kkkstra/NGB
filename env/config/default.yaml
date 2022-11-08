@@ -8,3 +8,8 @@ postgresql:
   dbname: ""
 debug:
   enable: false
+init:
+  rsa-key: true
+user-jwt:
+  expire: 168
+  issuer: ""
