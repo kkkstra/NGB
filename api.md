@@ -12,7 +12,7 @@ Include the bearer token in the `Authorization` header.
 Authorization: Bearer <token>
 ```
 
-**Aware: The request with "\*" means no token needed. **
+**Aware: The request with `*` means no token needed. **
 
 ## Response format
 
