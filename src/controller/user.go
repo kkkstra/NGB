@@ -223,6 +223,44 @@ func EditUserPassword(c *gin.Context) {
 	}
 }
 
+func EditUserEmail(c *gin.Context) {
+	username := c.Param("username")
+	t, _ := c.Get("userdata")
+	userData := t.(map[string]string)
+	if userData["role"] != "admin" && userData["username"] != username {
+		response.Error(c, http.StatusUnauthorized, "Insufficient permission. ")
+		return
+	}
+	m := model.GetModel(&model.UserModel{})
+	var id string
+	if userData["role"] != "admin" {
+		id = userData["id"]
+	} else {
+		u, err := m.(*model.UserModel).FindUserByUsername(username)
+		if err != nil {
+			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+			return
+		}
+		id = strconv.Itoa(int(u.ID))
+	}
+
+	var json param.ReqEditEmail
+	if err := c.ShouldBindJSON(&json); err != nil {
+		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
+		return
+	}
+
+	newUser := &model.User{
+		Email: json.Email,
+	}
+	err := m.(*model.UserModel).UpdateUser(id, newUser)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to update user email! ", err.Error())
+		return
+	}
+	response.Success(c, gin.H{}, "Update user email successfully! ")
+}
+
 func DeleteUser(c *gin.Context) {
 	username := c.Param("username")
 	t, _ := c.Get("userdata")

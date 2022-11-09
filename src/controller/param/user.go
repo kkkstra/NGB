@@ -23,6 +23,10 @@ type ReqEditProfile struct {
 }
 
 type ReqEditPassword struct {
-	OldPassword string `json:"old-password" binding:"max=512"`
-	NewPassword string `json:"new-password" binding:"max=39"`
+	OldPassword string `json:"old-password" binding:"required,max=64"`
+	NewPassword string `json:"new-password" binding:"required,max=64"`
+}
+
+type ReqEditEmail struct {
+	Email string `json:"email" binding:"required,max=128,email"`
 }

@@ -19,7 +19,7 @@ func initUserRouters(r *gin.Engine) {
 			{
 				userActionEdit.POST("/profile", controller.EditUserProfile)
 				userActionEdit.POST("/password", controller.EditUserPassword)
-				userActionEdit.POST("/email", controller.EditUserProfile)
+				userActionEdit.POST("/email", controller.EditUserEmail)
 			}
 			userAction.POST("/del", controller.DeleteUser)
 		}
