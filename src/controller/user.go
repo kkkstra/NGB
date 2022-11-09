@@ -72,7 +72,7 @@ func SignUp(c *gin.Context) {
 			response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())
 			return
 		}
-		response.Success(c, gin.H{"id": id}, "Sign up successfully! ")
+		response.Success(c, gin.H{"id": id, "role": "common"}, "Sign up successfully! ")
 	} else {
 		response.Error(c, http.StatusBadRequest, "Username already exists. ")
 		return
@@ -99,7 +99,7 @@ func SignIn(c *gin.Context) {
 			response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
 			return
 		}
-		response.Success(c, gin.H{"token": tokenStr, "ExpiresAt": token.ExpiresAt()}, "Sign in successfully! ")
+		response.Success(c, gin.H{"token": tokenStr, "expires_at": token.ExpiresAt()}, "Sign in successfully! ")
 		return
 	} else {
 		response.Error(c, http.StatusBadRequest, "Password is wrong! ", err.Error())

@@ -7,21 +7,21 @@ import (
 )
 
 func initUserRouters(r *gin.Engine) {
-	r.POST("/signup", controller.SignUp)
-	r.POST("/signin", controller.SignIn)
 	user := r.Group("/user")
 	{
+		user.POST("/signup", controller.SignUp)
+		user.POST("/signin", controller.SignIn)
 		user.GET("/:username", controller.GetUserProfile)
 		userAction := user.Group("/:username")
 		{
 			userAction.Use(jwt.JwtAuthMiddleware())
 			userActionEdit := userAction.Group("/edit")
 			{
-				userActionEdit.POST("/profile", controller.EditUserProfile)
-				userActionEdit.POST("/password", controller.EditUserPassword)
-				userActionEdit.POST("/email", controller.EditUserEmail)
+				userActionEdit.PUT("/profile", controller.EditUserProfile)
+				userActionEdit.PUT("/password", controller.EditUserPassword)
+				userActionEdit.PUT("/email", controller.EditUserEmail)
 			}
-			userAction.POST("/del", controller.DeleteUser)
+			userAction.DELETE("/delete", controller.DeleteUser)
 		}
 	}
 }
