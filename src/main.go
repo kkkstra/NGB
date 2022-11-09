@@ -2,11 +2,11 @@ package main
 
 import (
 	"byitter/src/router"
-	"byitter/src/util/Init"
+	"byitter/src/util/initEnv"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	Init.InitEnv()
+	initEnv.InitEnv()
 	router.InitRouters(gin.Default())
 }

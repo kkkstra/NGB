@@ -1,4 +1,4 @@
-package Init
+package initEnv
 
 import (
 	"byitter/src/controller"

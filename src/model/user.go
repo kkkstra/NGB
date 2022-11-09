@@ -35,7 +35,7 @@ func (m *UserModel) CreateUser(u *User) (uint, error) {
 	return u.ID, res.Error
 }
 
-func (m *UserModel) FindUser(username string) (*User, error) {
+func (m *UserModel) FindUserByUsername(username string) (*User, error) {
 	res := &User{}
 	tx := db.First(res,
 		"username = ?", username)
@@ -43,6 +43,15 @@ func (m *UserModel) FindUser(username string) (*User, error) {
 		return nil, tx.Error
 	}
 	return res, nil
+}
+
+func (m *UserModel) FindUserById(id string) (*User, error) {
+	var user User
+	tx := db.First(&user, id)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return &user, nil
 }
 
 func (m *UserModel) UpdateUser(id string, u *User) error {

@@ -9,7 +9,7 @@ import (
 type Config struct {
 	App        app        `yaml:"app"`
 	Postgresql postgresql `yaml:"postgresql"`
-	Init       initEnv    `yaml:"init"`
+	Init       initEnv    `yaml:"initEnv"`
 	Debug      debug      `yaml:"debug"`
 	User       userConf   `yaml:"user"`
 }

@@ -21,3 +21,8 @@ type ReqEditProfile struct {
 	School  string `json:"school,omitempty" binding:"max=32"`
 	Website string `json:"website,omitempty" binding:"max=128,url"`
 }
+
+type ReqEditPassword struct {
+	OldPassword string `json:"old-password" binding:"max=512"`
+	NewPassword string `json:"new-password" binding:"max=39"`
+}
