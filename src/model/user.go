@@ -2,20 +2,22 @@ package model
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 type RoleType int
 
 type User struct {
 	gorm.Model
-	Username string   `gorm:"primarykey;unique;not null"`
-	Email    string   `gorm:"unique;not null"`
-	Password string   `gorm:"not null"`
-	Role     RoleType `gorm:"not null;default:0"`
-	Intro    string
-	Github   string
-	School   string
-	Website  string
+	Username         string   `gorm:"primarykey;unique;not null"`
+	Email            string   `gorm:"unique;not null"`
+	Password         string   `gorm:"not null"`
+	Role             RoleType `gorm:"not null;default:0"`
+	Intro            string
+	Github           string
+	School           string
+	Website          string
+	UpdatePasswordAt time.Time
 }
 
 type UserModel struct {

@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func InitAdmin() {
@@ -26,10 +27,11 @@ func InitAdmin() {
 
 	if _, err = m.(*model.UserModel).FindUserByUsername(username); err != nil {
 		u := &model.User{
-			Username: username,
-			Email:    email,
-			Password: hashedPassword,
-			Role:     1,
+			Username:         username,
+			Email:            email,
+			Password:         hashedPassword,
+			Role:             1,
+			UpdatePasswordAt: time.Now(),
 		}
 		_, err := m.(*model.UserModel).CreateUser(u)
 		if err != nil {
@@ -59,13 +61,14 @@ func SignUp(c *gin.Context) {
 
 	if _, err = m.(*model.UserModel).FindUserByUsername(json.Username); err != nil {
 		u := &model.User{
-			Username: json.Username,
-			Email:    json.Email,
-			Password: hashedPassword,
-			Intro:    json.Intro,
-			Github:   json.Github,
-			School:   json.School,
-			Website:  json.Website,
+			Username:         json.Username,
+			Email:            json.Email,
+			Password:         hashedPassword,
+			Intro:            json.Intro,
+			Github:           json.Github,
+			School:           json.School,
+			Website:          json.Website,
+			UpdatePasswordAt: time.Now(),
 		}
 		id, err := m.(*model.UserModel).CreateUser(u)
 		if err != nil {
@@ -168,8 +171,6 @@ func EditUserProfile(c *gin.Context) {
 	response.Success(c, gin.H{}, "Update user profile successfully! ")
 }
 
-// TODO
-// 更改密码后要让原来的jwt失效
 func EditUserPassword(c *gin.Context) {
 	username := c.Param("username")
 	t, _ := c.Get("userdata")
@@ -209,7 +210,8 @@ func EditUserPassword(c *gin.Context) {
 			return
 		}
 		newUser := &model.User{
-			Password: hashedPassword,
+			Password:         hashedPassword,
+			UpdatePasswordAt: time.Now(),
 		}
 		err = m.(*model.UserModel).UpdateUser(id, newUser)
 		if err != nil {

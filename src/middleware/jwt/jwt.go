@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"byitter/src/controller/response"
+	"byitter/src/model"
 	"byitter/src/util/jwt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -29,6 +30,19 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			return
 		} else if time.Now().Unix() > claims.Claims.(*jwt.UserClaims).ExpiresAt {
 			response.Error(c, http.StatusBadRequest, "Expired token! ")
+			return
+		}
+
+		// 检查token是否因更改密码而失效
+		id := claims.Claims.(*jwt.UserClaims).Id
+		m := model.GetModel(&model.UserModel{})
+		u, err := m.(*model.UserModel).FindUserById(id)
+		if err != nil {
+			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+			return
+		}
+		if u.UpdatePasswordAt.Unix() > claims.Claims.(*jwt.UserClaims).IssuedAt {
+			response.Error(c, http.StatusBadRequest, "Invalid toknen. ")
 			return
 		}
 
