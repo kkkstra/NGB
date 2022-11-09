@@ -15,12 +15,13 @@ type UserClaims struct {
 	Role     model.RoleType `json:"rol"`
 }
 
-func GenerateUserJwt(username string, role model.RoleType) *UserJwt {
+func GenerateUserJwt(username string, role model.RoleType, id string) *UserJwt {
 	claims := UserClaims{
 		getBasicClaim(),
 		username,
 		role,
 	}
+	claims.Id = id
 	tokenClaims := jwtgo.NewWithClaims(jwtgo.SigningMethodRS256, claims)
 	tokenClaims.Header["kid"] = userJwtRSAKey.Kid
 	return &UserJwt{&Token{tokenClaims, userJwtRSAKey.PrivateKey}}

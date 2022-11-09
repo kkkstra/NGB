@@ -33,6 +33,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		}
 
 		userData := map[string]string{
+			"id":       claims.Claims.(*jwt.UserClaims).Id,
 			"username": claims.Claims.(*jwt.UserClaims).Username,
 			"role":     claims.Claims.(*jwt.UserClaims).Role.Str(),
 		}

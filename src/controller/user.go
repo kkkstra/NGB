@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func InitAdmin() {
@@ -92,7 +93,7 @@ func SignIn(c *gin.Context) {
 
 	if ok, err := util.CheckPasswordHash(json.Password, u.Password); ok {
 		//token, err := jwt.GetToken(json.Username, u.Role)
-		token := jwt.GenerateUserJwt(json.Username, u.Role)
+		token := jwt.GenerateUserJwt(json.Username, u.Role, strconv.Itoa(int(u.ID)))
 		tokenStr, err := token.GenerateTokenStr()
 		if err != nil {
 			response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
@@ -115,13 +116,13 @@ func GetUserProfile(c *gin.Context) {
 		return
 	}
 	userData := gin.H{
-		username:  u.Username,
-		"email":   u.Email,
-		"role":    u.Role.Str(),
-		"intro":   u.Intro,
-		"github":  u.Github,
-		"school":  u.School,
-		"website": u.Website,
+		"username": u.Username,
+		"email":    u.Email,
+		"role":     u.Role.Str(),
+		"intro":    u.Intro,
+		"github":   u.Github,
+		"school":   u.School,
+		"website":  u.Website,
 	}
 	response.Success(c, userData, "Get user profile successfully. ")
 }
@@ -134,5 +135,60 @@ func EditUserProfile(c *gin.Context) {
 		response.Error(c, http.StatusUnauthorized, "Insufficient permission. ")
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"a": "A"})
+	m := model.GetModel(&model.UserModel{})
+	var id string
+	if userData["role"] != "admin" {
+		id = userData["id"]
+	} else {
+		u, err := m.(*model.UserModel).FindUser(username)
+		if err != nil {
+			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+			return
+		}
+		id = strconv.Itoa(int(u.ID))
+	}
+
+	var json param.ReqEditProfile
+	if err := c.ShouldBindJSON(&json); err != nil {
+		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
+		return
+	}
+	u := &model.User{
+		Intro:   json.Intro,
+		Github:  json.Github,
+		School:  json.School,
+		Website: json.Website,
+	}
+	err := m.(*model.UserModel).UpdateUser(id, u)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to update user! ", err.Error())
+		return
+	}
+	response.Success(c, gin.H{}, "Update user successfully! ")
+}
+
+func DeleteUser(c *gin.Context) {
+	username := c.Param("username")
+	t, _ := c.Get("userdata")
+	userData := t.(map[string]string)
+	if userData["role"] != "admin" && userData["username"] != username {
+		response.Error(c, http.StatusUnauthorized, "Insufficient permission. ")
+		return
+	}
+	m := model.GetModel(&model.UserModel{})
+	var id string
+	if userData["role"] != "admin" {
+		id = userData["id"]
+	} else {
+		u, err := m.(*model.UserModel).FindUser(username)
+		if err != nil {
+			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+			return
+		}
+		id = strconv.Itoa(int(u.ID))
+	}
+	if err := m.(*model.UserModel).DelUser(id); err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to delete user. ", err.Error())
+	}
+	response.Success(c, gin.H{}, "Delete user successfully! ")
 }

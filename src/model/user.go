@@ -45,6 +45,18 @@ func (m *UserModel) FindUser(username string) (*User, error) {
 	return res, nil
 }
 
+func (m *UserModel) UpdateUser(id string, u *User) error {
+	var user User
+	db.First(&user, id)
+	tx := db.Model(&user).Updates(u)
+	return tx.Error
+}
+
+func (m *UserModel) DelUser(id string) error {
+	tx := db.Delete(&User{}, id)
+	return tx.Error
+}
+
 func (r *RoleType) Str() string {
 	switch *r {
 	case common:
