@@ -17,13 +17,6 @@ type RSAKey struct {
 	PrivateKey *rsa.PrivateKey
 }
 
-//type JWK struct {
-//	Kid string
-//	E   string
-//	Kty string
-//	N   string
-//}
-
 var (
 	rsaKeyList    = []string{"user_jwt"}
 	rsaKeys       = map[string]RSAKey{}
@@ -115,38 +108,6 @@ func GenerateRSAKey(keyType string) error {
 	file.Close()
 	return nil
 }
-
-//func loadJWKs() {
-//	for _, rsaKey := range rsaKeys {
-//		pubKey, err := jwk.New(rsaKey.PublicKey)
-//		if err != nil {
-//			panic(err)
-//			return
-//		}
-//		if _, ok := pubKey.(jwk.RSAPublicKey); !ok {
-//			panic(err)
-//			return
-//		}
-//		err = pubKey.Set(jwk.KeyIDKey, rsaKey.Kid)
-//		if err != nil {
-//			panic(err)
-//			return
-//		}
-//		buf, err := json.MarshalIndent(pubKey, "", "  ")
-//		if err != nil {
-//			panic(err)
-//			return
-//		}
-//
-//		jwkey := &JWK{}
-//		err = json.Unmarshal(buf, jwkey)
-//		if err != nil {
-//			panic(err)
-//			return
-//		}
-//		Jwks = append(Jwks, *jwkey)
-//	}
-//}
 
 var keyFunc = func(t *jwtgo.Token) (interface{}, error) {
 	switch t.Method.Alg() {
