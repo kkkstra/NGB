@@ -12,9 +12,9 @@ type Response struct {
 	Err  []string    `json:"error,omitempty"`
 }
 
-func Success(c *gin.Context, data interface{}, msg string) {
+func Success(c *gin.Context, status int, data interface{}, msg string) {
 	c.JSON(http.StatusOK, Response{
-		Code: http.StatusOK,
+		Code: status,
 		Data: data,
 		Msg:  msg,
 	})

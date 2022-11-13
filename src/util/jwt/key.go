@@ -82,7 +82,7 @@ func GenerateRSAKey(keyType string) error {
 	}
 	derStream := x509.MarshalPKCS1PrivateKey(privateKey)
 	block := &pem.Block{
-		Type:  "RSA PRIVATE KEY",
+		Type:  "PRIVATE KEY",
 		Bytes: derStream,
 	}
 	file, err := os.Create("./env/RSAKey/" + keyType + "-" + config.PrivateKeyFile)
@@ -101,7 +101,7 @@ func GenerateRSAKey(keyType string) error {
 		return err
 	}
 	block = &pem.Block{
-		Type:  "RSA PUBLIC KEY",
+		Type:  "PUBLIC KEY",
 		Bytes: derPkix,
 	}
 	file, err = os.Create("./env/RSAKey/" + keyType + "-" + config.PublicKeyFile)

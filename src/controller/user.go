@@ -75,7 +75,7 @@ func SignUp(c *gin.Context) {
 			response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())
 			return
 		}
-		response.Success(c, gin.H{"id": id, "role": "common"}, "Sign up successfully! ")
+		response.Success(c, http.StatusOK, gin.H{"id": id, "role": "common"}, "Sign up successfully! ")
 	} else {
 		response.Error(c, http.StatusBadRequest, "Username already exists. ")
 		return
@@ -102,7 +102,7 @@ func SignIn(c *gin.Context) {
 			response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
 			return
 		}
-		response.Success(c, gin.H{"token": tokenStr, "expires_at": token.ExpiresAt()}, "Sign in successfully! ")
+		response.Success(c, http.StatusOK, gin.H{"token": tokenStr, "expires_at": token.ExpiresAt()}, "Sign in successfully! ")
 		return
 	} else {
 		response.Error(c, http.StatusBadRequest, "Password is wrong! ", err.Error())
@@ -127,7 +127,7 @@ func GetUserProfile(c *gin.Context) {
 		"school":   u.School,
 		"website":  u.Website,
 	}
-	response.Success(c, userData, "Get user profile successfully. ")
+	response.Success(c, http.StatusOK, userData, "Get user profile successfully. ")
 }
 
 func EditUserProfile(c *gin.Context) {
@@ -168,7 +168,7 @@ func EditUserProfile(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "Failed to update user profile! ", err.Error())
 		return
 	}
-	response.Success(c, gin.H{}, "Update user profile successfully! ")
+	response.Success(c, http.StatusCreated, gin.H{}, "Update user profile successfully! ")
 }
 
 func EditUserPassword(c *gin.Context) {
@@ -218,7 +218,7 @@ func EditUserPassword(c *gin.Context) {
 			response.Error(c, http.StatusInternalServerError, "Failed to update user password! ", err.Error())
 			return
 		}
-		response.Success(c, gin.H{}, "Update user password successfully! ")
+		response.Success(c, http.StatusCreated, gin.H{}, "Update user password successfully! ")
 	} else {
 		response.Error(c, http.StatusBadRequest, "Original password is wrong! ", err.Error())
 		return
@@ -260,7 +260,7 @@ func EditUserEmail(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "Failed to update user email! ", err.Error())
 		return
 	}
-	response.Success(c, gin.H{}, "Update user email successfully! ")
+	response.Success(c, http.StatusCreated, gin.H{}, "Update user email successfully! ")
 }
 
 func DeleteUser(c *gin.Context) {
@@ -286,5 +286,5 @@ func DeleteUser(c *gin.Context) {
 	if err := m.(*model.UserModel).DelUser(id); err != nil {
 		response.Error(c, http.StatusInternalServerError, "Failed to delete user. ", err.Error())
 	}
-	response.Success(c, gin.H{}, "Delete user successfully! ")
+	response.Success(c, http.StatusOK, gin.H{}, "Delete user successfully! ")
 }
