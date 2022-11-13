@@ -1,0 +1,21 @@
+app:
+  addr: ""
+postgresql:
+  host: ""
+  port: ""
+  user: ""
+  password: ""
+  dbname: ""
+debug:
+  enable: false
+init-env:
+  admin: false
+  rsa-key: false
+user:
+  user-jwt:
+    expire: 168
+    issuer: ""
+  admin:
+    username: "admin"
+    password: "123456"
+    email: "admin@admin.com"
