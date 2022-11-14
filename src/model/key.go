@@ -32,11 +32,11 @@ func (m *RSAKeyModel) CreateRSAKey(keyType string) {
 	}
 }
 
-func (m *RSAKeyModel) FindRSAKey() []RSAKey {
+func (m *RSAKeyModel) FindRSAKey() ([]RSAKey, error) {
 	var keyList []RSAKey
 	res := m.db.Find(&keyList)
 	if res.Error != nil {
-		return nil
+		return nil, res.Error
 	}
-	return keyList
+	return keyList, nil
 }

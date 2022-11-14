@@ -37,7 +37,8 @@ func connectDatabase() {
 }
 
 func migrateSchema() {
-	if err := db.AutoMigrate(schemas...); err != nil {
+	err := db.AutoMigrate(schemas...)
+	if err != nil {
 		panic(err)
 		return
 	}

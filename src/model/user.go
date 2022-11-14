@@ -34,7 +34,7 @@ func (m *UserModel) CreateUser(u *User) (uint, error) {
 	if res.Error != nil {
 		return 0, res.Error
 	}
-	return u.ID, res.Error
+	return u.ID, nil
 }
 
 func (m *UserModel) FindUserByUsername(username string) (*User, error) {

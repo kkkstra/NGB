@@ -28,7 +28,8 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		if err != nil {
 			response.Error(c, http.StatusUnauthorized, "Invalid token! ", err.Error())
 			return
-		} else if time.Now().Unix() > claims.Claims.(*jwt.UserClaims).ExpiresAt {
+		}
+		if time.Now().Unix() > claims.Claims.(*jwt.UserClaims).ExpiresAt {
 			response.Error(c, http.StatusUnauthorized, "Expired token! ")
 			return
 		}

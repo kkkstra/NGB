@@ -6,6 +6,8 @@ import (
 
 type ModelInterface interface{}
 
+// TODO
+// 这里有无更好的写法？
 func GetModel(Model interface{}) interface{} {
 	t := reflect.TypeOf(Model)
 	switch t.String() {

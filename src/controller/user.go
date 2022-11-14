@@ -25,24 +25,25 @@ func InitAdmin() {
 	}
 	m := model.GetModel(&model.UserModel{})
 
-	if _, err = m.(*model.UserModel).FindUserByUsername(username); err != nil {
-		u := &model.User{
-			Username:         username,
-			Email:            email,
-			Password:         hashedPassword,
-			Role:             1,
-			UpdatePasswordAt: time.Now(),
-		}
-		_, err := m.(*model.UserModel).CreateUser(u)
-		if err != nil {
-			panic(err)
-			return
-		}
-		fmt.Println("Register admin successfully! ")
-	} else {
+	_, err = m.(*model.UserModel).FindUserByUsername(username)
+	if err == nil {
 		fmt.Println("Username already exists. ")
 		return
 	}
+
+	u := &model.User{
+		Username:         username,
+		Email:            email,
+		Password:         hashedPassword,
+		Role:             1,
+		UpdatePasswordAt: time.Now(),
+	}
+	_, err = m.(*model.UserModel).CreateUser(u)
+	if err != nil {
+		panic(err)
+		return
+	}
+	fmt.Println("Register admin successfully! ")
 }
 
 func SignUp(c *gin.Context) {
@@ -59,27 +60,28 @@ func SignUp(c *gin.Context) {
 	}
 	m := model.GetModel(&model.UserModel{})
 
-	if _, err = m.(*model.UserModel).FindUserByUsername(json.Username); err != nil {
-		u := &model.User{
-			Username:         json.Username,
-			Email:            json.Email,
-			Password:         hashedPassword,
-			Intro:            json.Intro,
-			Github:           json.Github,
-			School:           json.School,
-			Website:          json.Website,
-			UpdatePasswordAt: time.Now(),
-		}
-		id, err := m.(*model.UserModel).CreateUser(u)
-		if err != nil {
-			response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())
-			return
-		}
-		response.Success(c, http.StatusOK, gin.H{"id": id, "role": "common"}, "Sign up successfully! ")
-	} else {
+	_, err = m.(*model.UserModel).FindUserByUsername(json.Username)
+	if err == nil {
 		response.Error(c, http.StatusBadRequest, "Username already exists. ")
 		return
 	}
+
+	u := &model.User{
+		Username:         json.Username,
+		Email:            json.Email,
+		Password:         hashedPassword,
+		Intro:            json.Intro,
+		Github:           json.Github,
+		School:           json.School,
+		Website:          json.Website,
+		UpdatePasswordAt: time.Now(),
+	}
+	id, err := m.(*model.UserModel).CreateUser(u)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"id": id, "role": "common"}, "Sign up successfully! ")
 }
 
 func SignIn(c *gin.Context) {
@@ -94,20 +96,19 @@ func SignIn(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
 	}
 
-	if ok, err := util.CheckPasswordHash(json.Password, u.Password); ok {
-		//token, err := jwt.GetToken(json.Username, u.Role)
-		token := jwt.GenerateUserJwt(json.Username, u.Role, strconv.Itoa(int(u.ID)))
-		tokenStr, err := token.GenerateTokenStr()
-		if err != nil {
-			response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
-			return
-		}
-		response.Success(c, http.StatusOK, gin.H{"token": tokenStr, "expires_at": token.ExpiresAt()}, "Sign in successfully! ")
-		return
-	} else {
+	if ok, err := util.CheckPasswordHash(json.Password, u.Password); !ok {
 		response.Error(c, http.StatusBadRequest, "Password is wrong! ", err.Error())
 		return
 	}
+
+	//token, err := jwt.GetToken(json.Username, u.Role)
+	token := jwt.GenerateUserJwt(json.Username, u.Role, strconv.Itoa(int(u.ID)))
+	tokenStr, err := token.GenerateTokenStr()
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"token": tokenStr, "expires_at": token.ExpiresAt()}, "Sign in successfully! ")
 }
 
 func GetUserProfile(c *gin.Context) {
@@ -203,26 +204,25 @@ func EditUserPassword(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
 	}
 
-	if ok, err := util.CheckPasswordHash(json.OldPassword, u.Password); ok {
-		hashedPassword, err := util.HashPassword(json.NewPassword)
-		if err != nil {
-			response.Error(c, http.StatusInternalServerError, "Failed to hash new password! ", err.Error())
-			return
-		}
-		newUser := &model.User{
-			Password:         hashedPassword,
-			UpdatePasswordAt: time.Now(),
-		}
-		err = m.(*model.UserModel).UpdateUser(id, newUser)
-		if err != nil {
-			response.Error(c, http.StatusInternalServerError, "Failed to update user password! ", err.Error())
-			return
-		}
-		response.Success(c, http.StatusCreated, gin.H{}, "Update user password successfully! ")
-	} else {
+	if ok, err := util.CheckPasswordHash(json.OldPassword, u.Password); !ok {
 		response.Error(c, http.StatusBadRequest, "Original password is wrong! ", err.Error())
 		return
 	}
+	hashedPassword, err := util.HashPassword(json.NewPassword)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to hash new password! ", err.Error())
+		return
+	}
+	newUser := &model.User{
+		Password:         hashedPassword,
+		UpdatePasswordAt: time.Now(),
+	}
+	err = m.(*model.UserModel).UpdateUser(id, newUser)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to update user password! ", err.Error())
+		return
+	}
+	response.Success(c, http.StatusCreated, gin.H{}, "Update user password successfully! ")
 }
 
 func EditUserEmail(c *gin.Context) {

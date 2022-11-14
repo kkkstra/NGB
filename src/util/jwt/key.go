@@ -7,6 +7,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"os"
 )
@@ -43,7 +44,11 @@ func InitRSAKey() {
 
 func loadRSAkeys() {
 	m := model.GetModel(&model.RSAKeyModel{})
-	keyList := m.(*model.RSAKeyModel).FindRSAKey()
+	keyList, err := m.(*model.RSAKeyModel).FindRSAKey()
+	if err != nil {
+		panic(err)
+		return
+	}
 	for _, keyPem := range keyList {
 		publicKey, err := jwtgo.ParseRSAPublicKeyFromPEM([]byte(keyPem.PublicKey))
 		if err != nil {
@@ -112,11 +117,15 @@ func GenerateRSAKey(keyType string) error {
 var keyFunc = func(t *jwtgo.Token) (interface{}, error) {
 	switch t.Method.Alg() {
 	case jwtgo.SigningMethodRS256.Alg():
-		if kid, ok := t.Header["kid"].(string); ok {
-			if key, ok := rsaKeys[kid]; ok {
-				return key.PublicKey, nil
-			}
+		kid, ok := t.Header["kid"].(string)
+		if !ok {
+			return nil, errors.New("Failed to find kid")
 		}
+		key, ok := rsaKeys[kid]
+		if !ok {
+			return nil, errors.New("Failed to find the key. ")
+		}
+		return key.PublicKey, nil
 	}
-	return nil, nil
+	return nil, errors.New("Failed to find the key. ")
 }
