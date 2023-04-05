@@ -1,13 +1,14 @@
 package jwt
 
 import (
-	"byitter/src/controller/response"
-	"byitter/src/model"
-	"byitter/src/util/jwt"
-	"github.com/gin-gonic/gin"
+	"NGB/internal/controller/response"
+	"NGB/internal/model"
+	"NGB/pkg/jwt"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func JwtAuthMiddleware() gin.HandlerFunc {

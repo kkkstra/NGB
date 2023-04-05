@@ -1,8 +1,9 @@
 package router
 
 import (
-	"byitter/src/controller"
-	"byitter/src/middleware/jwt"
+	"NGB/internal/controller"
+	"NGB/internal/middleware/jwt"
+
 	"github.com/gin-gonic/gin"
 )
 

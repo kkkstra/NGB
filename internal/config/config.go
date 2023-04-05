@@ -2,8 +2,9 @@ package config
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
@@ -59,8 +60,8 @@ const (
 var C *Config
 
 func init() {
-	configFile := "config.yaml"
-	r, err := os.ReadFile(fmt.Sprintf("./env/config/%s", configFile))
+	configFile := "default.yaml"
+	r, err := os.ReadFile(fmt.Sprintf("./configs/config_files/%s", configFile))
 	if err != nil {
 		panic(err)
 		return

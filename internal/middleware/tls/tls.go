@@ -1,8 +1,9 @@
 package tls
 
 import (
-	"byitter/src/config"
+	"NGB/internal/config"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/unrolled/secure"
 )

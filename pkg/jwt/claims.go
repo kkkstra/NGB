@@ -1,9 +1,10 @@
 package jwt
 
 import (
-	"byitter/src/config"
-	jwtgo "github.com/dgrijalva/jwt-go"
+	"NGB/internal/config"
 	"time"
+
+	jwtgo "github.com/dgrijalva/jwt-go"
 )
 
 type BasicClaims struct {

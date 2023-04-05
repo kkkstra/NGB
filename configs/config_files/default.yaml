@@ -1,11 +1,11 @@
 app:
-  addr: ""
+  addr: ":7777"
 postgresql:
-  host: ""
-  port: ""
-  user: ""
-  password: ""
-  dbname: ""
+  host: db
+  port: "5432"
+  user: "postgres"
+  password: "postgres"
+  dbname: "ngb"
 debug:
   enable: false
 init-env:

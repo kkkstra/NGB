@@ -1,7 +1,8 @@
 package jwt
 
 import (
-	"byitter/src/model"
+	"NGB/internal/model"
+
 	jwtgo "github.com/dgrijalva/jwt-go"
 )
 
