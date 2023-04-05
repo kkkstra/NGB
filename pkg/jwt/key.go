@@ -1,15 +1,16 @@
 package jwt
 
 import (
-	"byitter/src/config"
-	"byitter/src/model"
+	"NGB/internal/config"
+	"NGB/internal/model"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	jwtgo "github.com/dgrijalva/jwt-go"
 	"os"
+
+	jwtgo "github.com/dgrijalva/jwt-go"
 )
 
 type RSAKey struct {
@@ -25,7 +26,7 @@ var (
 	//Jwks          []JWK
 )
 
-func InitRSAKey() {
+func init() {
 	if config.C.Init.RsaKey {
 		for _, keyType := range rsaKeyList {
 			err := GenerateRSAKey(keyType)

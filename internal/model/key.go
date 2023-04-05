@@ -1,7 +1,8 @@
 package model
 
 import (
-	"byitter/src/config"
+	"NGB/internal/config"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

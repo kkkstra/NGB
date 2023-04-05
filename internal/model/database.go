@@ -1,8 +1,9 @@
 package model
 
 import (
-	"byitter/src/config"
+	"NGB/internal/config"
 	"fmt"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

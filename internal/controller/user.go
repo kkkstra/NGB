@@ -1,18 +1,25 @@
 package controller
 
 import (
-	"byitter/src/config"
-	"byitter/src/controller/param"
-	"byitter/src/controller/response"
-	"byitter/src/model"
-	"byitter/src/util"
-	"byitter/src/util/jwt"
+	"NGB/internal/config"
+	"NGB/internal/controller/param"
+	"NGB/internal/controller/response"
+	"NGB/internal/model"
+	"NGB/pkg/jwt"
+	"NGB/pkg/util"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
+
+func init() {
+	if config.C.Init.Admin {
+		InitAdmin()
+	}
+}
 
 func InitAdmin() {
 	username := config.C.User.Admin.Username
