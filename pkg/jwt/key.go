@@ -84,7 +84,7 @@ func GenerateRSAKey(keyType string) error {
 		Type:  "PRIVATE KEY",
 		Bytes: derStream,
 	}
-	file, err := os.Create("./env/RSAKey/" + keyType + "-" + config.PrivateKeyFile)
+	file, err := os.Create("./configs/RSAKey/" + keyType + "-" + config.PrivateKeyFile)
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func GenerateRSAKey(keyType string) error {
 		Type:  "PUBLIC KEY",
 		Bytes: derPkix,
 	}
-	file, err = os.Create("./env/RSAKey/" + keyType + "-" + config.PublicKeyFile)
+	file, err = os.Create("./configs/RSAKey/" + keyType + "-" + config.PublicKeyFile)
 	if err != nil {
 		return err
 	}

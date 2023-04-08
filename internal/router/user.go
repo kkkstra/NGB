@@ -16,13 +16,10 @@ func initUserRouters(r *gin.Engine) {
 		userAction := user.Group("/:username")
 		{
 			userAction.Use(jwt.JwtAuthMiddleware())
-			userActionEdit := userAction.Group("/edit")
-			{
-				userActionEdit.PUT("/profile", controller.EditUserProfile)
-				userActionEdit.PUT("/password", controller.EditUserPassword)
-				userActionEdit.PUT("/email", controller.EditUserEmail)
-			}
-			userAction.DELETE("/delete", controller.DeleteUser)
+			userAction.PUT("/profile", controller.EditUserProfile)
+			userAction.PUT("/password", controller.EditUserPassword)
+			userAction.PUT("/email", controller.EditUserEmail)
+			userAction.DELETE("", controller.DeleteUser)
 		}
 	}
 }

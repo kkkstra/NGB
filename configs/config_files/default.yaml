@@ -9,12 +9,12 @@ postgresql:
 debug:
   enable: false
 init-env:
-  admin: false
+  admin: true
   rsa-key: false
 user:
   user-jwt:
     expire: 168
-    issuer: ""
+    issuer: "kkkstra.cn"
   admin:
     username: "admin"
     password: "123456"
