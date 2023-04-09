@@ -1,13 +1,10 @@
 package controller
 
 import (
-	"NGB/internal/config"
 	"NGB/internal/controller/param"
 	"NGB/internal/controller/response"
 	"NGB/internal/model"
-	"NGB/pkg/jwt"
 	"NGB/pkg/util"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,113 +12,72 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func init() {
-	if config.C.Init.Admin {
-		InitAdmin()
-	}
-}
-
-func InitAdmin() {
-	username := config.C.User.Admin.Username
-	password := config.C.User.Admin.Password
-	email := config.C.User.Admin.Email
-	hashedPassword, err := util.HashPassword(password)
-	if err != nil {
-		panic(err)
-		return
-	}
-	m := model.GetModel(&model.UserModel{})
-
-	_, err = m.(*model.UserModel).FindUserByUsername(username)
-	if err == nil {
-		fmt.Println("Username already exists. ")
-		return
-	}
-
-	u := &model.User{
-		Username:         username,
-		Email:            email,
-		Password:         hashedPassword,
-		Role:             1,
-		UpdatePasswordAt: time.Now(),
-	}
-	_, err = m.(*model.UserModel).CreateUser(u)
-	if err != nil {
-		panic(err)
-		return
-	}
-	fmt.Println("Register admin successfully! ")
-}
-
 func SignUp(c *gin.Context) {
 	var err error
-	var json param.ReqSignUp
-	if err := c.ShouldBindJSON(&json); err != nil {
+	var req param.ReqSignUp
+	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
 		return
 	}
-	hashedPassword, err := util.HashPassword(json.Password)
+	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "Failed to hash password! ", err.Error())
 		return
 	}
-	m := model.GetModel(&model.UserModel{})
+	m := model.GetModel()
 
-	_, err = m.(*model.UserModel).FindUserByUsername(json.Username)
+	_, err = m.FindUserByUsername(req.Username)
 	if err == nil {
 		response.Error(c, http.StatusBadRequest, "Username already exists. ")
 		return
 	}
 
 	u := &model.User{
-		Username:         json.Username,
-		Email:            json.Email,
+		Username:         req.Username,
+		Email:            req.Email,
 		Password:         hashedPassword,
-		Intro:            json.Intro,
-		Github:           json.Github,
-		School:           json.School,
-		Website:          json.Website,
+		Intro:            req.Intro,
 		UpdatePasswordAt: time.Now(),
 	}
-	id, err := m.(*model.UserModel).CreateUser(u)
+	id, err := m.CreateUser(u)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())
 		return
 	}
-	response.Success(c, http.StatusOK, gin.H{"id": id, "role": "common"}, "Sign up successfully! ")
+	response.Success(c, http.StatusOK, gin.H{"id": id}, "Sign up successfully! ")
 }
 
 func SignIn(c *gin.Context) {
-	var json param.ReqSignIn
-	if err := c.ShouldBindJSON(&json); err != nil {
+	var req param.ReqSignIn
+	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
 		return
 	}
-	m := model.GetModel(&model.UserModel{})
-	u, err := m.(*model.UserModel).FindUserByUsername(json.Username)
+	m := model.GetModel()
+	u, err := m.FindUserByUsername(req.Username)
 	if err != nil {
 		response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
 	}
 
-	if ok, err := util.CheckPasswordHash(json.Password, u.Password); !ok {
+	if ok, err := util.CheckPasswordHash(req.Password, u.Password); !ok {
 		response.Error(c, http.StatusBadRequest, "Password is wrong! ", err.Error())
 		return
 	}
 
 	//token, err := jwt.GetToken(json.Username, u.Role)
-	token := jwt.GenerateUserJwt(json.Username, u.Role, strconv.Itoa(int(u.ID)))
-	tokenStr, err := token.GenerateTokenStr()
+	tokenClaims := util.GenerateJWTToken(req.Username, u.Role, strconv.Itoa(int(u.ID)))
+	token, err := util.GetJWTTokenString(tokenClaims)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
 		return
 	}
-	response.Success(c, http.StatusOK, gin.H{"token": tokenStr, "expires_at": token.ExpiresAt()}, "Sign in successfully! ")
+	response.Success(c, http.StatusOK, gin.H{"token": token, "expires_at": util.GetExpiresAt(tokenClaims)}, "Sign in successfully! ")
 }
 
 func GetUserProfile(c *gin.Context) {
 	username := c.Param("username")
-	m := model.GetModel(&model.UserModel{})
-	u, err := m.(*model.UserModel).FindUserByUsername(username)
+	m := model.GetModel()
+	u, err := m.FindUserByUsername(username)
 	if err != nil {
 		response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
 		return
@@ -129,169 +85,130 @@ func GetUserProfile(c *gin.Context) {
 	userData := gin.H{
 		"username": u.Username,
 		"email":    u.Email,
-		"role":     u.Role.Str(),
+		"role":     u.Role,
 		"intro":    u.Intro,
-		"github":   u.Github,
-		"school":   u.School,
-		"website":  u.Website,
 	}
 	response.Success(c, http.StatusOK, userData, "Get user profile successfully. ")
 }
 
 func EditUserProfile(c *gin.Context) {
-	username := c.Param("username")
-	t, _ := c.Get("userdata")
-	userData := t.(map[string]string)
-	if userData["role"] != "admin" && userData["username"] != username {
-		response.Error(c, http.StatusUnauthorized, "Insufficient permission. ")
-		return
-	}
-	m := model.GetModel(&model.UserModel{})
-	var id string
-	if userData["role"] != "admin" {
-		id = userData["id"]
-	} else {
-		u, err := m.(*model.UserModel).FindUserByUsername(username)
-		if err != nil {
-			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+	if id, ok := checkAuthorization(c); ok {
+		var req param.ReqEditProfile
+		if err := c.ShouldBindJSON(&req); err != nil {
+			response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
 			return
 		}
-		id = strconv.Itoa(int(u.ID))
-	}
 
-	var json param.ReqEditProfile
-	if err := c.ShouldBindJSON(&json); err != nil {
-		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
-		return
-	}
+		m := model.GetModel()
 
-	u := &model.User{
-		Intro:   json.Intro,
-		Github:  json.Github,
-		School:  json.School,
-		Website: json.Website,
+		// 检查用户名是否重复
+		_, err := m.FindUserByUsername(req.Username)
+		if err == nil {
+			response.Error(c, http.StatusBadRequest, "Username already exists. ")
+			return
+		}
+
+		u := &model.User{
+			Username: req.Username,
+			Intro:    req.Intro,
+		}
+		err = m.UpdateUser(id, u)
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to update user profile! ", err.Error())
+			return
+		}
+		response.Success(c, http.StatusCreated, gin.H{}, "Update user profile successfully! ")
 	}
-	err := m.(*model.UserModel).UpdateUser(id, u)
-	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "Failed to update user profile! ", err.Error())
-		return
-	}
-	response.Success(c, http.StatusCreated, gin.H{}, "Update user profile successfully! ")
 }
 
 func EditUserPassword(c *gin.Context) {
-	username := c.Param("username")
-	t, _ := c.Get("userdata")
-	userData := t.(map[string]string)
-	if userData["role"] != "admin" && userData["username"] != username {
-		response.Error(c, http.StatusUnauthorized, "Insufficient permission. ")
-		return
-	}
-	m := model.GetModel(&model.UserModel{})
-	var id string
-	if userData["role"] != "admin" {
-		id = userData["id"]
-	} else {
-		u, err := m.(*model.UserModel).FindUserByUsername(username)
-		if err != nil {
-			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+	if id, ok := checkAuthorization(c); ok {
+		var req param.ReqEditPassword
+		if err := c.ShouldBindJSON(&req); err != nil {
+			response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
 			return
 		}
-		id = strconv.Itoa(int(u.ID))
-	}
 
-	var json param.ReqEditPassword
-	if err := c.ShouldBindJSON(&json); err != nil {
-		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
-		return
-	}
+		m := model.GetModel()
+		u, err := m.FindUserById(id)
+		if err != nil {
+			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+		}
 
-	u, err := m.(*model.UserModel).FindUserById(id)
-	if err != nil {
-		response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+		if ok, err := util.CheckPasswordHash(req.OldPassword, u.Password); !ok {
+			response.Error(c, http.StatusBadRequest, "Original password is wrong! ", err.Error())
+			return
+		}
+		hashedPassword, err := util.HashPassword(req.NewPassword)
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to hash new password! ", err.Error())
+			return
+		}
+		newUser := &model.User{
+			Password:         hashedPassword,
+			UpdatePasswordAt: time.Now(),
+		}
+		err = m.UpdateUser(id, newUser)
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to update user password! ", err.Error())
+			return
+		}
+		response.Success(c, http.StatusCreated, gin.H{}, "Update user password successfully! ")
 	}
-
-	if ok, err := util.CheckPasswordHash(json.OldPassword, u.Password); !ok {
-		response.Error(c, http.StatusBadRequest, "Original password is wrong! ", err.Error())
-		return
-	}
-	hashedPassword, err := util.HashPassword(json.NewPassword)
-	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "Failed to hash new password! ", err.Error())
-		return
-	}
-	newUser := &model.User{
-		Password:         hashedPassword,
-		UpdatePasswordAt: time.Now(),
-	}
-	err = m.(*model.UserModel).UpdateUser(id, newUser)
-	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "Failed to update user password! ", err.Error())
-		return
-	}
-	response.Success(c, http.StatusCreated, gin.H{}, "Update user password successfully! ")
 }
 
+// TODO
+// 增加邮箱验证
 func EditUserEmail(c *gin.Context) {
-	username := c.Param("username")
-	t, _ := c.Get("userdata")
-	userData := t.(map[string]string)
-	if userData["role"] != "admin" && userData["username"] != username {
-		response.Error(c, http.StatusUnauthorized, "Insufficient permission. ")
-		return
-	}
-	m := model.GetModel(&model.UserModel{})
-	var id string
-	if userData["role"] != "admin" {
-		id = userData["id"]
-	} else {
-		u, err := m.(*model.UserModel).FindUserByUsername(username)
-		if err != nil {
-			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+	if id, ok := checkAuthorization(c); ok {
+		var req param.ReqEditEmail
+		if err := c.ShouldBindJSON(&req); err != nil {
+			response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
 			return
 		}
-		id = strconv.Itoa(int(u.ID))
-	}
 
-	var json param.ReqEditEmail
-	if err := c.ShouldBindJSON(&json); err != nil {
-		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
-		return
+		m := model.GetModel()
+		newUser := &model.User{
+			Email: req.Email,
+		}
+		err := m.UpdateUser(id, newUser)
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to update user email! ", err.Error())
+			return
+		}
+		response.Success(c, http.StatusCreated, gin.H{}, "Update user email successfully! ")
 	}
-
-	newUser := &model.User{
-		Email: json.Email,
-	}
-	err := m.(*model.UserModel).UpdateUser(id, newUser)
-	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "Failed to update user email! ", err.Error())
-		return
-	}
-	response.Success(c, http.StatusCreated, gin.H{}, "Update user email successfully! ")
 }
 
 func DeleteUser(c *gin.Context) {
+	if id, ok := checkAuthorization(c); ok {
+		m := model.GetModel()
+		if err := m.DelUser(id); err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to delete user. ", err.Error())
+		}
+		response.Success(c, http.StatusOK, gin.H{}, "Delete user successfully! ")
+	}
+}
+
+func checkAuthorization(c *gin.Context) (string, bool) {
 	username := c.Param("username")
 	t, _ := c.Get("userdata")
 	userData := t.(map[string]string)
-	if userData["role"] != "admin" && userData["username"] != username {
+
+	// get user id
+	m := model.GetModel()
+
+	u, err := m.FindUserByUsername(username)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
+		return "", false
+	}
+	id := strconv.Itoa(int(u.ID))
+
+	if userData["role"] != "admin" && userData["id"] != id {
 		response.Error(c, http.StatusUnauthorized, "Insufficient permission. ")
-		return
+		return "", false
 	}
-	m := model.GetModel(&model.UserModel{})
-	var id string
-	if userData["role"] != "admin" {
-		id = userData["id"]
-	} else {
-		u, err := m.(*model.UserModel).FindUserByUsername(username)
-		if err != nil {
-			response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
-			return
-		}
-		id = strconv.Itoa(int(u.ID))
-	}
-	if err := m.(*model.UserModel).DelUser(id); err != nil {
-		response.Error(c, http.StatusInternalServerError, "Failed to delete user. ", err.Error())
-	}
-	response.Success(c, http.StatusOK, gin.H{}, "Delete user successfully! ")
+
+	return id, true
 }

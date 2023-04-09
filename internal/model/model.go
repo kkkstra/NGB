@@ -1,20 +1,15 @@
 package model
 
 import (
-	"reflect"
+	"gorm.io/gorm"
 )
 
-type ModelInterface interface{}
+type Model struct {
+	db *gorm.DB
+}
 
 // TODO
 // 这里有无更好的写法？
-func GetModel(Model interface{}) interface{} {
-	t := reflect.TypeOf(Model)
-	switch t.String() {
-	case "*model.UserModel":
-		return &UserModel{db}
-	case "*model.RSAKeyModel":
-		return &RSAKeyModel{db}
-	}
-	return nil
+func GetModel() *Model {
+	return &Model{db}
 }

@@ -1,6 +1,6 @@
 app:
   addr: ":7777"
-postgresql:
+database:
   host: db
   port: "5432"
   user: "postgres"
@@ -8,14 +8,8 @@ postgresql:
   dbname: "ngb"
 debug:
   enable: false
-init-env:
-  admin: true
-  rsa-key: false
 user:
-  user-jwt:
+  jwt:
     expire: 168
-    issuer: "kkkstra.cn"
-  admin:
-    username: "admin"
-    password: "123456"
-    email: "admin@admin.com"
+    issuer: "ngb.kkkstra.cn"
+    key: "kkkstra"
