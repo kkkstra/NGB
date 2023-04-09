@@ -8,10 +8,10 @@ import (
 )
 
 func initUserRouters(r *gin.Engine) {
+	r.POST("/signup", controller.SignUp)
+	r.POST("/signin", controller.SignIn)
 	user := r.Group("/user")
 	{
-		user.POST("/signup", controller.SignUp)
-		user.POST("/signin", controller.SignIn)
 		user.GET("/:username", controller.GetUserProfile)
 		userAction := user.Group("/:username")
 		{

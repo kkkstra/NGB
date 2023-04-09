@@ -8,54 +8,36 @@ import (
 )
 
 type Config struct {
-	App        app        `yaml:"app"`
-	Postgresql postgresql `yaml:"postgresql"`
-	Init       initEnv    `yaml:"init-env"`
-	Debug      debug      `yaml:"debug"`
-	User       userConf   `yaml:"user"`
+	App      app      `yaml:"app"`
+	Database database `yaml:"database"`
+	Debug    debug    `yaml:"debug"`
+	User     userConf `yaml:"user"`
 }
 
 type app struct {
 	Addr string `yaml:"addr"`
 }
 
-type postgresql struct {
+type database struct {
 	Host     string `yaml:"host"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Dbname   string `yaml:"dbname"`
 	Port     string `yaml:"port"`
 }
-
-type initEnv struct {
-	Admin  bool `yaml:"admin"`
-	RsaKey bool `yaml:"rsa-key"`
-}
-
 type debug struct {
 	Enable bool `yaml:"enable"`
 }
 
 type userConf struct {
-	UserJWT userJWT `yaml:"user-jwt"`
-	Admin   admin   `yaml:"admin"`
+	Jwt jwt `yaml:"jwt"`
 }
 
-type userJWT struct {
+type jwt struct {
 	Expire int    `yaml:"expire"`
 	Issuer string `yaml:"issuer"`
+	Key    string `yaml:"key"`
 }
-
-type admin struct {
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Email    string `yaml:"email"`
-}
-
-const (
-	PublicKeyFile  = "rsa-public-key.pem"
-	PrivateKeyFile = "rsa-private-key.pem"
-)
 
 var C *Config
 
@@ -73,18 +55,4 @@ func init() {
 		return
 	}
 	C = config
-}
-
-func ReadRSAKeyFromFile(keyType string) (publicKey, privateKey string) {
-	publicKeyByte, err := os.ReadFile(fmt.Sprintf("./env/RSAKey/%s", keyType+"-"+PublicKeyFile))
-	if err != nil {
-		panic(err)
-		return
-	}
-	privateKeyByte, err := os.ReadFile(fmt.Sprintf("./env/RSAKey/%s", keyType+"-"+PrivateKeyFile))
-	if err != nil {
-		panic(err)
-		return
-	}
-	return string(publicKeyByte), string(privateKeyByte)
 }

@@ -12,7 +12,6 @@ var (
 	db      *gorm.DB
 	schemas = []interface{}{
 		&User{},
-		&RSAKey{},
 	}
 )
 
@@ -24,11 +23,11 @@ func init() {
 func connectDatabase() {
 	var err error
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
-		config.C.Postgresql.Host,
-		config.C.Postgresql.User,
-		config.C.Postgresql.Password,
-		config.C.Postgresql.Dbname,
-		config.C.Postgresql.Port,
+		config.C.Database.Host,
+		config.C.Database.User,
+		config.C.Database.Password,
+		config.C.Database.Dbname,
+		config.C.Database.Port,
 	)
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
