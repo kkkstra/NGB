@@ -20,7 +20,7 @@ jobs:
         login-server: "${{ secrets.ALI_DOCKER_HUB_REGISTRY }}"
         username: "${{ secrets.ALI_DOCKER_HUB_USERNAME }}"
         password: "${{ secrets.ALI_DOCKER_HUB_PASSWORD }}"
-    - name: Build and Push Docker Image
-      run: |
-        docker build -t ${{ secrets.ALI_DOCKER_HUB_REGISTRY }:$latest .
-        docker push ${{ secrets.ALI_DOCKER_HUB_REGISTRY }:$latest
+    - name: Build Docker Image
+      run: docker build -t ${{ secrets.ALI_DOCKER_HUB_REGISTRY }:latest .
+    - name: Push Docker Image
+      run: docker push ${{ secrets.ALI_DOCKER_HUB_REGISTRY }:latest
