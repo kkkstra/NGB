@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build Image
-        run: docker build -t ${{ secrets.ALI_DOCKER_HUB_REGISTRY }}:latest .
+      run: docker build -t ${{ secrets.ALI_DOCKER_HUB_REGISTRY }}:latest .
     - name: Login to Registry # 登录阿里云镜像服务器
       run: docker login --username=${{ secrets.ALI_DOCKER_HUB_USERNAME }} --password ${{ secrets.ALI_DOCKER_HUB_PASSWORD }} ${{ ALI_DOCKER_HUB_REGISTRY }}
     - name: Push Image # 推送镜像，设置版本为latest
