@@ -1,5 +1,5 @@
 app:
-  addr: ":7777"
+  addr: ":8111"
 database:
   host: db
   port: "5432"

@@ -9,9 +9,7 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Build Image
@@ -20,13 +18,20 @@ jobs:
       run: docker login --username=${{ secrets.ALI_DOCKER_HUB_USERNAME }} --password=${{ secrets.ALI_DOCKER_HUB_PASSWORD }} registry.cn-hangzhou.aliyuncs.com
     - name: Push Image # 推送镜像，设置版本为latest
       run: docker push ${{ secrets.ALI_DOCKER_HUB_REGISTRY }}:latest
-    - name: Setup SSH Private Key
-      run: |
-        mkdir -p ~/.ssh/
-        echo "${{ secrets.REMOTE_PRIVATE_KEY }}" > ~/.ssh/id_rsa 
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
-    - name: Login to Server
-      run: |
-        ssh ${{ secrets.REMOTE_HOST_USERNAME }}@${{ secrets.REMOTE_HOST }}
-        echo "just for test" >> test.txt
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.REMOTE_HOST }}
+        username: ${{ secrets.REMOTE_HOST_USERNAME }}
+        key: ${{ secrets.REMOTE_PRIVATE_KEY }}
+        port: ${{ secrets.REMOTE_HOST_PORT }}
+        script: |
+          cd ${{ secret.REMOTE_WORK_DIR }}
+          docker login --username=${{ secrets.ALI_DOCKER_HUB_USERNAME }} --password=${{ secrets.ALI_DOCKER_HUB_PASSWORD }} registry.cn-hangzhou.aliyuncs.com
+          docker pull registry.cn-hangzhou.aliyuncs.com/kkkstra/ngb:latest
+          docker image prune
+          docker compose stop
+          docker compose up -d --build

@@ -2,9 +2,9 @@ version: '3'
 
 services:
   web:
-    build: .
+    image: registry.cn-hangzhou.aliyuncs.com/kkkstra/ngb:latest
     ports:
-      - "7777:7777"
+      - "8111:8111"
     depends_on:
       - db
     networks:
