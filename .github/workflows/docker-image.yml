@@ -20,3 +20,13 @@ jobs:
       run: docker login --username=${{ secrets.ALI_DOCKER_HUB_USERNAME }} --password=${{ secrets.ALI_DOCKER_HUB_PASSWORD }} registry.cn-hangzhou.aliyuncs.com
     - name: Push Image # 推送镜像，设置版本为latest
       run: docker push ${{ secrets.ALI_DOCKER_HUB_REGISTRY }}:latest
+    - name: Setup SSH Private Key
+      run: |
+        mkdir -p ~/.ssh/
+        echo "${{ REMOTE_PRIVATE_KEY }}" > ~/.ssh/id_rsa 
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan ${{ REMOTE_HOST }} >> ~/.ssh/known_hosts
+    - name: Login to Server
+      run: |
+        ssh ${{ REMOTE_HOST_USERNAME }}@${{ REMOTE_HOST }}
+        echo "test" >> test.txt
