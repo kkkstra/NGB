@@ -29,7 +29,7 @@ jobs:
         key: ${{ secrets.REMOTE_PRIVATE_KEY }}
         port: ${{ secrets.REMOTE_HOST_PORT }}
         script: |
-          cd ${{ secret.REMOTE_WORK_DIR }}
+          cd ${{ secrets.REMOTE_WORK_DIR }}
           docker login --username=${{ secrets.ALI_DOCKER_HUB_USERNAME }} --password=${{ secrets.ALI_DOCKER_HUB_PASSWORD }} registry.cn-hangzhou.aliyuncs.com
           docker pull registry.cn-hangzhou.aliyuncs.com/kkkstra/ngb:latest
           docker image prune
