@@ -29,4 +29,4 @@ jobs:
     - name: Login to Server
       run: |
         ssh ${{ secrets.REMOTE_HOST_USERNAME }}@${{ secrets.REMOTE_HOST }}
-        echo "test" >> test.txt
+        echo "just for test" >> test.txt
