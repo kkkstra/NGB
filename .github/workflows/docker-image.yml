@@ -23,10 +23,10 @@ jobs:
     - name: Setup SSH Private Key
       run: |
         mkdir -p ~/.ssh/
-        echo "${{ REMOTE_PRIVATE_KEY }}" > ~/.ssh/id_rsa 
+        echo "${{ secrets.REMOTE_PRIVATE_KEY }}" > ~/.ssh/id_rsa 
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan ${{ REMOTE_HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
     - name: Login to Server
       run: |
-        ssh ${{ REMOTE_HOST_USERNAME }}@${{ REMOTE_HOST }}
+        ssh ${{ secrets.REMOTE_HOST_USERNAME }}@${{ secrets.REMOTE_HOST }}
         echo "test" >> test.txt
