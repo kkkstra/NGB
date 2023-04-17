@@ -35,7 +35,7 @@ func connectDatabase() {
 		logrus.Logger.Error(err)
 		return
 	}
-	logrus.Logger.Info("connected to database")
+	// logrus.Logger.Info("connected to database")
 }
 
 func migrateSchema() {
@@ -44,5 +44,5 @@ func migrateSchema() {
 		logrus.Logger.Error(err)
 		return
 	}
-	logrus.Logger.Info("migrate schema successfully")
+	// logrus.Logger.Info("migrate schema successfully")
 }

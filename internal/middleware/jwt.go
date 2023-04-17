@@ -18,11 +18,13 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		bearerTokenSplit := strings.Split(bearerToken, " ")
 		if len(bearerTokenSplit) < 2 {
 			response.Error(c, http.StatusUnauthorized, "Empty token! ")
+			c.Abort()
 			return
 		}
 		token := bearerTokenSplit[1]
 		if token == "" {
 			response.Error(c, http.StatusUnauthorized, "Empty token! ")
+			c.Abort()
 			return
 		}
 
@@ -30,10 +32,12 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		claims, err := jwt.ParseJWTToken(token)
 		if err != nil {
 			response.Error(c, http.StatusUnauthorized, "Invalid token! ", err.Error())
+			c.Abort()
 			return
 		}
 		if time.Now().Unix() > claims.ExpiresAt {
 			response.Error(c, http.StatusUnauthorized, "Expired token! ")
+			c.Abort()
 			return
 		}
 
@@ -43,10 +47,12 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		u, err := m.FindUserById(id)
 		if err != nil {
 			response.Error(c, http.StatusUnauthorized, "User does not exist. ", err.Error())
+			c.Abort()
 			return
 		}
 		if u.UpdatePasswordAt.Unix() > claims.IssuedAt {
 			response.Error(c, http.StatusUnauthorized, "Invalid toknen. ")
+			c.Abort()
 			return
 		}
 
