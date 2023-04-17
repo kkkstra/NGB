@@ -38,7 +38,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		}
 
 		// 检查token是否因更改密码或删除用户而失效
-		id := claims.Id
+		id := claims.Subject
 		m := model.GetModel()
 		u, err := m.FindUserById(id)
 		if err != nil {
@@ -51,7 +51,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		}
 
 		userData := map[string]string{
-			"id":   claims.Id,
+			"id":   claims.Subject,
 			"role": getRoleString(claims.Role),
 		}
 		c.Set("userdata", userData)

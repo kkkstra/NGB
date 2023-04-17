@@ -24,7 +24,7 @@ func GenerateJWTToken(username string, role int, id string) *jwt.Token {
 			Issuer:    config.C.User.Jwt.Issuer,
 			IssuedAt:  nowTime.Unix(),
 			ExpiresAt: expireTime.Unix(),
-			Id:        id,
+			Subject:   id,
 		},
 	}
 
