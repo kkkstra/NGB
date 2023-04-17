@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"NGB/internal/config"
 	"NGB/internal/controller/param"
 	"NGB/internal/controller/response"
 	"NGB/internal/model"
@@ -45,7 +46,7 @@ func SignUp(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "Failed to create user! ", err.Error())
 		return
 	}
-	response.Success(c, http.StatusOK, gin.H{"id": id}, "Sign up successfully! ")
+	response.Success(c, http.StatusOK, response.Data{"id": id}, "Sign up successfully! ")
 }
 
 func SignIn(c *gin.Context) {
@@ -66,13 +67,13 @@ func SignIn(c *gin.Context) {
 	}
 
 	//token, err := jwt.GetToken(json.Username, u.Role)
-	tokenClaims := jwt.GenerateJWTToken(req.Username, u.Role, strconv.Itoa(int(u.ID)))
+	tokenClaims := jwt.GenerateJWTToken(req.Username, u.Role, strconv.Itoa(int(u.ID)), config.C.User.Jwt.Expire, config.C.User.Jwt.Issuer)
 	token, err := jwt.GetJWTTokenString(tokenClaims)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
 		return
 	}
-	response.Success(c, http.StatusOK, gin.H{"token": token, "expires_at": jwt.GetExpiresAt(tokenClaims)}, "Sign in successfully! ")
+	response.Success(c, http.StatusOK, response.Data{"token": token, "expires_at": jwt.GetExpiresAt(tokenClaims)}, "Sign in successfully! ")
 }
 
 func GetUserProfile(c *gin.Context) {
@@ -83,7 +84,7 @@ func GetUserProfile(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
 		return
 	}
-	userData := gin.H{
+	userData := response.Data{
 		"username": u.Username,
 		"email":    u.Email,
 		"role":     u.Role,
@@ -118,7 +119,7 @@ func EditUserProfile(c *gin.Context) {
 			response.Error(c, http.StatusInternalServerError, "Failed to update user profile! ", err.Error())
 			return
 		}
-		response.Success(c, http.StatusCreated, gin.H{}, "Update user profile successfully! ")
+		response.Success(c, http.StatusCreated, response.Data{}, "Update user profile successfully! ")
 	}
 }
 
@@ -154,7 +155,7 @@ func EditUserPassword(c *gin.Context) {
 			response.Error(c, http.StatusInternalServerError, "Failed to update user password! ", err.Error())
 			return
 		}
-		response.Success(c, http.StatusCreated, gin.H{}, "Update user password successfully! ")
+		response.Success(c, http.StatusCreated, response.Data{}, "Update user password successfully! ")
 	}
 }
 
@@ -169,15 +170,23 @@ func EditUserEmail(c *gin.Context) {
 		}
 
 		m := model.GetModel()
+
+		// 检查邮箱是否重复
+		_, err := m.FindUserByUsername(req.Email)
+		if err == nil {
+			response.Error(c, http.StatusBadRequest, "Email already exists. ")
+			return
+		}
+
 		newUser := &model.User{
 			Email: req.Email,
 		}
-		err := m.UpdateUser(id, newUser)
+		err = m.UpdateUser(id, newUser)
 		if err != nil {
 			response.Error(c, http.StatusInternalServerError, "Failed to update user email! ", err.Error())
 			return
 		}
-		response.Success(c, http.StatusCreated, gin.H{}, "Update user email successfully! ")
+		response.Success(c, http.StatusCreated, response.Data{}, "Update user email successfully! ")
 	}
 }
 
@@ -187,7 +196,7 @@ func DeleteUser(c *gin.Context) {
 		if err := m.DelUser(id); err != nil {
 			response.Error(c, http.StatusInternalServerError, "Failed to delete user. ", err.Error())
 		}
-		response.Success(c, http.StatusOK, gin.H{}, "Delete user successfully! ")
+		response.Success(c, http.StatusOK, response.Data{}, "Delete user successfully! ")
 	}
 }
 

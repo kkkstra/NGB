@@ -14,17 +14,17 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func GenerateJWTToken(username string, role int, id string) *jwt.Token {
+func GenerateJWTToken(username string, role int, id string, expire int, issuer string) *jwt.Token {
 	nowTime := time.Now()
-	expireTime := nowTime.Add(time.Duration(config.C.User.Jwt.Expire) * time.Hour)
+	expireTime := nowTime.Add(time.Duration(expire) * time.Hour)
 
 	claims := Claims{
 		role,
 		jwt.StandardClaims{
-			Issuer:    config.C.User.Jwt.Issuer,
+			Issuer:    issuer,
 			IssuedAt:  nowTime.Unix(),
 			ExpiresAt: expireTime.Unix(),
-			Id:        id,
+			Subject:   id,
 		},
 	}
 
