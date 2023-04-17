@@ -10,12 +10,13 @@ import (
 type Config struct {
 	App      app      `yaml:"app"`
 	Database database `yaml:"database"`
-	Debug    debug    `yaml:"debug"`
+	Log      log      `yaml:"log"`
 	User     userConf `yaml:"user"`
 }
 
 type app struct {
-	Addr string `yaml:"addr"`
+	Addr  string `yaml:"addr"`
+	Debug bool   `yaml:"debug"`
 }
 
 type database struct {
@@ -25,8 +26,10 @@ type database struct {
 	Dbname   string `yaml:"dbname"`
 	Port     string `yaml:"port"`
 }
-type debug struct {
-	Enable bool `yaml:"enable"`
+
+type log struct {
+	Filepath       string `yaml:"filepath"`
+	FilenamePrefix string `yaml:"filename-prefix"`
 }
 
 type userConf struct {

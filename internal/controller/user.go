@@ -4,6 +4,7 @@ import (
 	"NGB/internal/controller/param"
 	"NGB/internal/controller/response"
 	"NGB/internal/model"
+	"NGB/pkg/jwt"
 	"NGB/pkg/util"
 	"net/http"
 	"strconv"
@@ -65,13 +66,13 @@ func SignIn(c *gin.Context) {
 	}
 
 	//token, err := jwt.GetToken(json.Username, u.Role)
-	tokenClaims := util.GenerateJWTToken(req.Username, u.Role, strconv.Itoa(int(u.ID)))
-	token, err := util.GetJWTTokenString(tokenClaims)
+	tokenClaims := jwt.GenerateJWTToken(req.Username, u.Role, strconv.Itoa(int(u.ID)))
+	token, err := jwt.GetJWTTokenString(tokenClaims)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "Failed to get token! ", err.Error())
 		return
 	}
-	response.Success(c, http.StatusOK, gin.H{"token": token, "expires_at": util.GetExpiresAt(tokenClaims)}, "Sign in successfully! ")
+	response.Success(c, http.StatusOK, gin.H{"token": token, "expires_at": jwt.GetExpiresAt(tokenClaims)}, "Sign in successfully! ")
 }
 
 func GetUserProfile(c *gin.Context) {

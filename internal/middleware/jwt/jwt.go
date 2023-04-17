@@ -3,7 +3,7 @@ package jwt
 import (
 	"NGB/internal/controller/response"
 	"NGB/internal/model"
-	"NGB/pkg/util"
+	"NGB/pkg/jwt"
 	"net/http"
 	"strings"
 	"time"
@@ -27,7 +27,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		}
 
 		// parse jwt
-		claims, err := util.ParseJWTToken(token)
+		claims, err := jwt.ParseJWTToken(token)
 		if err != nil {
 			response.Error(c, http.StatusUnauthorized, "Invalid token! ", err.Error())
 			return

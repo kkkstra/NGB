@@ -2,6 +2,7 @@ package model
 
 import (
 	"NGB/internal/config"
+	"NGB/pkg/logrus"
 	"fmt"
 
 	"gorm.io/driver/postgres"
@@ -31,15 +32,17 @@ func connectDatabase() {
 	)
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		logrus.Logger.Error(err)
 		return
 	}
+	logrus.Logger.Info("connected to database")
 }
 
 func migrateSchema() {
 	err := db.AutoMigrate(schemas...)
 	if err != nil {
-		panic(err)
+		logrus.Logger.Error(err)
 		return
 	}
+	logrus.Logger.Info("migrate schema successfully")
 }
