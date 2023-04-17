@@ -9,13 +9,15 @@ import (
 )
 
 type Response struct {
-	Code int         `json:"code"`
-	Data interface{} `json:"data,omitempty"`
-	Msg  string      `json:"msg, omitempty"`
-	Err  []string    `json:"error,omitempty"`
+	Code int      `json:"code"`
+	Data Data     `json:"data,omitempty"`
+	Msg  string   `json:"msg, omitempty"`
+	Err  []string `json:"error,omitempty"`
 }
 
-func Success(c *gin.Context, status int, data interface{}, msg string) {
+type Data map[string]any
+
+func Success(c *gin.Context, status int, data Data, msg string) {
 	c.JSON(http.StatusOK, Response{
 		Code: status,
 		Data: data,

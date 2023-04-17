@@ -1,9 +1,7 @@
 package logrus
 
 import (
-	"NGB/internal/config"
 	"fmt"
-	"path"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -16,19 +14,19 @@ import (
 
 var Logger *logrus.Logger
 
-func init() {
-	getLogger()
+func InitLogger(debug bool, logPath string) {
+	getLogger(debug, logPath)
 }
 
-func getLogger() {
+func getLogger(debug bool, logPath string) {
 	Logger = logrus.New()
-	setLogger()
+	setLogger(debug, logPath)
 }
 
-func setLogger() {
+func setLogger(debug bool, logPath string) {
 	// 设置格式
 	Logger.SetReportCaller(true)
-	if config.C.App.Debug {
+	if debug {
 		Logger.SetLevel(logrus.DebugLevel)
 	} else {
 		Logger.SetLevel(logrus.InfoLevel)
@@ -36,7 +34,7 @@ func setLogger() {
 	Logger.SetFormatter(customFormatter(false))
 
 	// 日志分割
-	logPath := path.Join(config.C.Log.Filepath, config.C.Log.FilenamePrefix)
+	// logPath := path.Join(filepath, filenamePrefix)
 	writer, _ := rotatelogs.New(
 		logPath+"-%Y-%m-%d",
 		rotatelogs.WithLinkName(logPath),
