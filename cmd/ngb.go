@@ -10,7 +10,8 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.Use(middleware.Logger())
+	r.Use(middleware.LoggerMiddleware())
+	r.Use(middleware.JwtAuthMiddleware())
 	router.InitRouters(r)
 	r.Run(config.C.App.Addr)
 }

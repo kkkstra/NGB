@@ -1,4 +1,4 @@
-package jwt
+package middleware
 
 import (
 	"NGB/internal/controller/response"

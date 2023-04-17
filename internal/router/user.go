@@ -2,24 +2,32 @@ package router
 
 import (
 	"NGB/internal/controller"
-	"NGB/internal/middleware/jwt"
 
 	"github.com/gin-gonic/gin"
 )
 
 func initUserRouters(r *gin.Engine) {
-	r.POST("/signup", controller.SignUp)
-	r.POST("/signin", controller.SignIn)
-	user := r.Group("/user")
+	users := r.Group("/users")
 	{
-		user.GET("/:username", controller.GetUserProfile)
-		userAction := user.Group("/:username")
+		// 注册
+		users.POST("", controller.SignUp)
+		userAction := users.Group("/:username")
 		{
-			userAction.Use(jwt.JwtAuthMiddleware())
-			userAction.PUT("/profile", controller.EditUserProfile)
-			userAction.PUT("/password", controller.EditUserPassword)
-			userAction.PUT("/email", controller.EditUserEmail)
+			// 获取用户资料
+			userAction.GET("/profile", controller.GetUserProfile)
+			// 更新用户资料
+			userAction.POST("/profile", controller.EditUserProfile)
+			// 更新密码
+			userAction.POST("/password", controller.EditUserPassword)
+			// 更新邮箱
+			userAction.POST("/email", controller.EditUserEmail)
+			// 删除用户
 			userAction.DELETE("", controller.DeleteUser)
 		}
+	}
+	session := r.Group("/session")
+	{
+		// 登录
+		session.POST("", controller.SignIn)
 	}
 }
