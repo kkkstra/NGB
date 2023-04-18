@@ -16,6 +16,11 @@ type User struct {
 	UpdatePasswordAt time.Time
 }
 
+const (
+	roleCommon = 0
+	roleAdmin = 1
+)
+
 func (m *Model) CreateUser(u *User) (uint, error) {
 	res := m.db.Create(u)
 	if res.Error != nil {
