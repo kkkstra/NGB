@@ -1,17 +1,27 @@
 app:
-  addr: ":8111"
+  addr: ':8111'
   debug: true
 database:
   host: db
-  port: "5432"
-  user: "postgres"
-  password: "postgres"
-  dbname: "ngb"
+  port: '5432'
+  user: 'postgres'
+  password: 'postgres'
+  dbname: 'ngb'
 log:
-  filepath: "/var/log"
-  filename-prefix: "log_backend"
+  filepath: '/var/log'
+  filename-prefix: 'log_backend'
 user:
   jwt:
     expire: 168
-    issuer: "ngb.kkkstra.cn"
-    key: "kkkstra"
+    issuer: 'ngb.kkkstra.cn'
+    key: 'kkkstra'
+    skip-paths:
+      - 
+        - 'POST'
+        - '/users'
+      - 
+        - 'GET'
+        - '/users/:username/profile'
+      -
+        - 'POST'
+        - '/session'

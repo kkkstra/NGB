@@ -37,9 +37,10 @@ type userConf struct {
 }
 
 type jwt struct {
-	Expire int    `yaml:"expire"`
-	Issuer string `yaml:"issuer"`
-	Key    string `yaml:"key"`
+	Expire int         `yaml:"expire"`
+	Issuer string      `yaml:"issuer"`
+	Key    string      `yaml:"key"`
+	SkipPaths [][]string `yaml:"skip-paths"`
 }
 
 var C *Config

@@ -28,9 +28,16 @@ func SignUp(c *gin.Context) {
 	}
 	m := model.GetModel()
 
+	// 检查用户名是否存在
 	_, err = m.FindUserByUsername(req.Username)
 	if err == nil {
 		response.Error(c, http.StatusBadRequest, "Username already exists. ")
+		return
+	}
+	// 检查邮箱是否重复
+	_, err = m.FindUserByUsername(req.Email)
+	if err == nil {
+		response.Error(c, http.StatusBadRequest, "Email already exists. ")
 		return
 	}
 
