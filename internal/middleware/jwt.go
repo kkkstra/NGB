@@ -7,7 +7,6 @@ import (
 	"NGB/pkg/jwt"
 	"NGB/pkg/logrus"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
@@ -18,14 +17,14 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 	// skipper path, 支持正则表达式
 	return func(c *gin.Context) {
 		for _, skipPath := range config.C.User.Jwt.SkipPaths {
-			matched, err := regexp.MatchString(skipPath[1], c.FullPath())
-			logrus.Logger.Debugf("%s %s %v", skipPath[1], c.FullPath(), matched)
-			if err != nil {
-				logrus.Logger.Error(err)
-				c.Abort()
-				return
-			}
-			if c.Request.Method == skipPath[0] && matched {
+			// matched, err := regexp.MatchString(skipPath[1], c.FullPath())
+			// if err != nil {
+			// 	logrus.Logger.Error(err)
+			// 	c.Abort()
+			// 	return
+			// }
+			if c.Request.Method == skipPath[0] && c.FullPath() == skipPath[1] {
+				logrus.Logger.Debugf("Skipped path: [%s]%s [%s]%s", skipPath[0], skipPath[1], c.Request.Method, c.FullPath())
 				c.Next()
 				return
 			}

@@ -35,7 +35,7 @@ func SignUp(c *gin.Context) {
 		return
 	}
 	// 检查邮箱是否重复
-	_, err = m.FindUserByUsername(req.Email)
+	_, err = m.FindUserByEmail(req.Email)
 	if err == nil {
 		response.Error(c, http.StatusBadRequest, "Email already exists. ")
 		return
@@ -58,7 +58,7 @@ func SignUp(c *gin.Context) {
 
 func SignIn(c *gin.Context) {
 	var req param.ReqSignIn
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {	
 		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
 		return
 	}
@@ -111,17 +111,19 @@ func EditUserProfile(c *gin.Context) {
 		m := model.GetModel()
 
 		// 检查用户名是否重复
-		_, err := m.FindUserByUsername(req.Username)
-		if err == nil {
-			response.Error(c, http.StatusBadRequest, "Username already exists. ")
-			return
+		if req.Username != c.Param("username") {
+			_, err := m.FindUserByUsername(req.Username)
+			if err == nil {
+				response.Error(c, http.StatusBadRequest, "Username already exists. ")
+				return
+			}
 		}
 
 		u := &model.User{
 			Username: req.Username,
 			Intro:    req.Intro,
 		}
-		err = m.UpdateUser(id, u)
+		err := m.UpdateUser(id, u)
 		if err != nil {
 			response.Error(c, http.StatusInternalServerError, "Failed to update user profile! ", err.Error())
 			return
@@ -179,7 +181,7 @@ func EditUserEmail(c *gin.Context) {
 		m := model.GetModel()
 
 		// 检查邮箱是否重复
-		_, err := m.FindUserByUsername(req.Email)
+		_, err := m.FindUserByEmail(req.Email)
 		if err == nil {
 			response.Error(c, http.StatusBadRequest, "Email already exists. ")
 			return

@@ -39,6 +39,16 @@ func (m *Model) FindUserByUsername(username string) (*User, error) {
 	return res, nil
 }
 
+func (m *Model) FindUserByEmail(email string) (*User, error) {
+	res := &User{}
+	tx := db.First(res,
+		"email = ?", email)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return res, nil
+}
+
 func (m *Model) FindUserById(id string) (*User, error) {
 	var user User
 	tx := db.First(&user, id)

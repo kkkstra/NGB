@@ -14,7 +14,7 @@ type ReqSignIn struct {
 
 type ReqEditProfile struct {
 	Username string `json:"username" binding:"required,min=5,max=32"`
-	Intro    string `json:"intro,omitempty" binding:"max=512"`
+	Intro    string `json:"intro" binding:"max=512"`
 }
 
 type ReqEditPassword struct {
