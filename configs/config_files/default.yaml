@@ -2,11 +2,17 @@ app:
   addr: ':8111'
   debug: true
 database:
-  host: db
-  port: '5432'
-  user: 'postgres'
-  password: 'postgres'
-  dbname: 'ngb'
+  sql:
+    host: db
+    port: '5432'
+    user: 'postgres'
+    password: 'postgres'
+    dbname: 'ngb'
+  redis:
+    host: redis
+    port: 6379
+    password: 'kkkstra-ngb'
+    db: 0
 log:
   filepath: '/var/log'
   filename-prefix: 'log_backend'

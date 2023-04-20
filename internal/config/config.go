@@ -20,11 +20,23 @@ type app struct {
 }
 
 type database struct {
+	Sql		sql		`yaml:"sql"`
+	Redis	redis	`yaml:"redis"`
+}
+
+type sql struct {
 	Host     string `yaml:"host"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Dbname   string `yaml:"dbname"`
 	Port     string `yaml:"port"`
+}
+
+type redis struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Password string `yaml:"password"`
+	Db       int		`yaml:"db"`
 }
 
 type log struct {
