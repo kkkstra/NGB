@@ -12,6 +12,7 @@ type Config struct {
 	Database database `yaml:"database"`
 	Log      log      `yaml:"log"`
 	User     userConf `yaml:"user"`
+	Email    email    `yaml:"email"`
 }
 
 type app struct {
@@ -20,8 +21,8 @@ type app struct {
 }
 
 type database struct {
-	Sql		sql		`yaml:"sql"`
-	Redis	redis	`yaml:"redis"`
+	Sql   sql   `yaml:"sql"`
+	Redis redis `yaml:"redis"`
 }
 
 type sql struct {
@@ -36,7 +37,7 @@ type redis struct {
 	Host     string `yaml:"host"`
 	Port     string `yaml:"port"`
 	Password string `yaml:"password"`
-	Db       int		`yaml:"db"`
+	Db       int    `yaml:"db"`
 }
 
 type log struct {
@@ -45,14 +46,28 @@ type log struct {
 }
 
 type userConf struct {
-	Jwt jwt `yaml:"jwt"`
+	Jwt  jwt  `yaml:"jwt"`
+	Code code `yaml:"code"`
 }
 
 type jwt struct {
-	Expire int         `yaml:"expire"`
-	Issuer string      `yaml:"issuer"`
-	Key    string      `yaml:"key"`
+	Expire    int        `yaml:"expire"`
+	Issuer    string     `yaml:"issuer"`
+	Key       string     `yaml:"key"`
 	SkipPaths [][]string `yaml:"skip-paths"`
+}
+
+type code struct {
+	Expire        int64 `yaml:"expire"`
+	MailFrequency int64 `yaml:"mail-frequency"`
+}
+
+type email struct {
+	Addr    string `yaml:"addr"`
+	Sender  string `yaml:"sender"`
+	Account string `yaml:"account"`
+	Code    string `yaml:"code"`
+	Server  string `yaml:"server"`
 }
 
 var C *Config
@@ -62,13 +77,11 @@ func init() {
 	r, err := os.ReadFile(fmt.Sprintf("./configs/config_files/%s", configFile))
 	if err != nil {
 		panic(err)
-		return
 	}
 	config := &Config{}
 	err = yaml.Unmarshal(r, config)
 	if err != nil {
 		panic(err)
-		return
 	}
 	C = config
 }

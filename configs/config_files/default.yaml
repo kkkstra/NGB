@@ -31,3 +31,15 @@ user:
       -
         - 'POST'
         - '/session'
+      -
+        - 'GET'
+        - '/session/email'
+  code:
+    expire: 5
+    mail-frequency: 1
+email:
+  addr: 'smtp.qq.com:25'
+  sender: 'NGB'
+  account: 'patrick46@qq.com'
+  code: 'dsmyzmiavgnwcadd'
+  server: 'smtp.qq.com'
