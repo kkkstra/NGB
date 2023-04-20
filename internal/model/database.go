@@ -13,6 +13,9 @@ var (
 	db      *gorm.DB
 	schemas = []interface{}{
 		&User{},
+		&Category{},
+		&Post{},
+		&UserThumbs{},
 	}
 )
 
@@ -31,6 +34,7 @@ func connectDatabase() {
 		config.C.Database.Port,
 	)
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// db.SetLogger(logrus.Logger)
 	if err != nil {
 		logrus.Logger.Error(err)
 		return

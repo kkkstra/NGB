@@ -8,12 +8,16 @@ import (
 
 type User struct {
 	gorm.Model
-	Username         string `gorm:"primarykey;not null"`
-	Email            string `gorm:"not null"`
-	Password         string `gorm:"not null"`
-	Role             int    `gorm:"not null;default:0"`
-	Intro            string
-	UpdatePasswordAt time.Time
+	ID								uint		`gorm:"primaryKey,unique"`
+	Username					string	`gorm:"not null"`
+	Email							string	`gorm:"not null"`
+	Password					string	`gorm:"not null"`
+	Role							int			`gorm:"not null;default:0"`
+	Intro							string
+	UpdatePasswordAt	time.Time
+	Posts							[]Post
+	Thumbs						[]Post	`gorm:"many2many:user_post"`				// 点赞表
+	Followings				[]*User	`gorm:"many2many:user_followings"`	// 关注列表
 }
 
 const (
