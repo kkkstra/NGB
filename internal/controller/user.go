@@ -5,8 +5,10 @@ import (
 	"NGB/internal/controller/param"
 	"NGB/internal/controller/response"
 	"NGB/internal/model"
+	"NGB/internal/model/redis"
 	"NGB/pkg/jwt"
 	"NGB/pkg/util"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -58,7 +60,7 @@ func SignUp(c *gin.Context) {
 
 func SignIn(c *gin.Context) {
 	var req param.ReqSignIn
-	if err := c.ShouldBindJSON(&req); err != nil {	
+	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
 		return
 	}
@@ -68,8 +70,24 @@ func SignIn(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "User does not exist. ", err.Error())
 	}
 
-	if ok, err := util.CheckPasswordHash(req.Password, u.Password); !ok {
-		response.Error(c, http.StatusBadRequest, "Password is wrong! ", err.Error())
+	if req.Method == "password" {
+		if ok, err := util.CheckPasswordHash(req.Password, u.Password); !ok {
+			response.Error(c, http.StatusBadRequest, "Password is wrong! ", err.Error())
+			return
+		}
+	} else if req.Method == "code" {
+		cli := redis.GetClient()
+		code, err := cli.GetCode(u.Email)
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to get code. ", err.Error())
+			return
+		}
+		if code != req.Code {
+			response.Success(c, http.StatusInternalServerError, response.Data{}, "Wrong code. ")
+			return
+		}
+	} else {
+		response.Error(c, http.StatusBadRequest, "Wrong method. ", "")
 		return
 	}
 
@@ -81,6 +99,57 @@ func SignIn(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, response.Data{"token": token, "expires_at": jwt.GetExpiresAt(tokenClaims)}, "Sign in successfully! ")
+}
+
+func GetSignInCode(c *gin.Context) {
+	var req param.ReqGetSignInCode
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
+		return
+	}
+	m := model.GetModel()
+	_, err := m.FindUserByEmail(req.Email)
+	if err != nil {
+		response.Success(c, http.StatusOK, response.Data{}, "Sending email complete! ")
+		return
+	}
+	// 生成验证码
+	code := util.GenerateValidateCode(6)
+	cli := redis.GetClient()
+	// 检测邮件发送频率
+	sendTime, err := cli.GetSendMailTime(req.Email)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to send email. ", err.Error())
+		return
+	}
+	nowTime := time.Now().Unix()
+	if sendTime != -1 && nowTime-sendTime < int64(config.C.User.Code.MailFrequency*60) {
+		response.Success(c, http.StatusOK, response.Data{}, "Send mail too frequently. ")
+		return
+	}
+	// 存储验证码
+	cli.UpdateCode(req.Email, code)
+	// 发送邮件
+	err = util.SendEmail(util.CustomEmail{
+		From:    fmt.Sprintf("%s <%s>", config.C.Email.Sender, config.C.Email.Account),
+		To:      req.Email,
+		Subject: "NGB: Validate Code",
+		Content: fmt.Sprintf("Your validate code is %s. ", code),
+		Account: config.C.Email.Account,
+		Code:    config.C.Email.Code,
+		Addr:    config.C.Email.Addr,
+		Server:  config.C.Email.Server,
+	})
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to send email", err.Error())
+		return
+	}
+	err = cli.UpdateSendMailTime(req.Email, time.Now().Unix())
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to update send time. ", "")
+		return
+	}
+	response.Success(c, http.StatusOK, response.Data{}, "Send mail successfully. ")
 }
 
 func GetUserProfile(c *gin.Context) {

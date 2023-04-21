@@ -27,11 +27,11 @@ func init() {
 func connectDatabase() {
 	var err error
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
-		config.C.Database.Host,
-		config.C.Database.User,
-		config.C.Database.Password,
-		config.C.Database.Dbname,
-		config.C.Database.Port,
+		config.C.Database.Sql.Host,
+		config.C.Database.Sql.User,
+		config.C.Database.Sql.Password,
+		config.C.Database.Sql.Dbname,
+		config.C.Database.Sql.Port,
 	)
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	// db.SetLogger(logrus.Logger)
@@ -39,7 +39,7 @@ func connectDatabase() {
 		logrus.Logger.Error(err)
 		return
 	}
-	// logrus.Logger.Info("connected to database")
+	// logrus.Logger.Info("PostgreSQL: connected to database")
 }
 
 func migrateSchema() {
@@ -48,5 +48,5 @@ func migrateSchema() {
 		logrus.Logger.Error(err)
 		return
 	}
-	// logrus.Logger.Info("migrate schema successfully")
+	// logrus.Logger.Info("PostgreSQL: migrate schema successfully")
 }

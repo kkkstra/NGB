@@ -29,5 +29,6 @@ func initUserRouters(r *gin.Engine) {
 	{
 		// 登录
 		session.POST("", controller.SignIn)
+		session.GET("/email", controller.GetSignInCode)
 	}
 }

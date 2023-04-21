@@ -8,8 +8,14 @@ type ReqSignUp struct {
 }
 
 type ReqSignIn struct {
+	Method   string `json:"method" binding:"required"`
 	Username string `json:"username" binding:"required,min=5,max=32"`
-	Password string `json:"password" binding:"required,min=6,max=64"`
+	Password string `json:"password" binding:""`
+	Code     string `json:"code" binding:""`
+}
+
+type ReqGetSignInCode struct {
+	Email string `json:"email" binding:"required,email"`
 }
 
 type ReqEditProfile struct {
