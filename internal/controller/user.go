@@ -8,6 +8,7 @@ import (
 	"NGB/internal/model/redis"
 	"NGB/pkg/jwt"
 	"NGB/pkg/util"
+	"NGB/pkg/logrus"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -123,6 +124,8 @@ func GetSignInCode(c *gin.Context) {
 		return
 	}
 	nowTime := time.Now().Unix()
+	debug := fmt.Sprintf("%v %v %v %v", nowTime, sendTime, nowTime-sendTime, config.C.User.Code.MailFrequency*60)
+	logrus.Logger.Debug(debug)
 	if sendTime != -1 && nowTime-sendTime < int64(config.C.User.Code.MailFrequency*60) {
 		response.Success(c, http.StatusOK, response.Data{}, "Send mail too frequently. ")
 		return

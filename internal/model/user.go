@@ -15,9 +15,12 @@ type User struct {
 	Role							int			`gorm:"not null;default:0"`
 	Intro							string
 	UpdatePasswordAt	time.Time
-	Posts							[]Post
-	Thumbs						[]Post	`gorm:"many2many:user_post"`				// 点赞表
-	Followings				[]*User	`gorm:"many2many:user_followings"`	// 关注列表
+}
+
+type Following struct {
+	gorm.Model
+  UserID      uint `gorm:"primaryKey"`
+  FollowingID	uint `gorm:"primaryKey"`
 }
 
 const (
@@ -26,16 +29,16 @@ const (
 )
 
 func (m *Model) CreateUser(u *User) (uint, error) {
-	res := m.db.Create(u)
-	if res.Error != nil {
-		return 0, res.Error
+	tx := m.db.Create(u)
+	if tx.Error != nil {
+		return 0, tx.Error
 	}
 	return u.ID, nil
 }
 
 func (m *Model) FindUserByUsername(username string) (*User, error) {
 	res := &User{}
-	tx := db.First(res,
+	tx := m.db.First(res,
 		"username = ?", username)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -45,7 +48,7 @@ func (m *Model) FindUserByUsername(username string) (*User, error) {
 
 func (m *Model) FindUserByEmail(email string) (*User, error) {
 	res := &User{}
-	tx := db.First(res,
+	tx := m.db.First(res,
 		"email = ?", email)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -55,7 +58,7 @@ func (m *Model) FindUserByEmail(email string) (*User, error) {
 
 func (m *Model) FindUserById(id string) (*User, error) {
 	var user User
-	tx := db.First(&user, id)
+	tx := m.db.First(&user, id)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -64,12 +67,50 @@ func (m *Model) FindUserById(id string) (*User, error) {
 
 func (m *Model) UpdateUser(id string, u *User) error {
 	var user User
-	db.First(&user, id)
-	tx := db.Model(&user).Updates(u)
+	m.db.First(&user, id)
+	tx := m.db.Model(&user).Updates(u)
 	return tx.Error
 }
 
 func (m *Model) DelUser(id string) error {
-	tx := db.Delete(&User{}, id)
+	tx := m.db.Delete(&User{}, id)
 	return tx.Error
+}
+
+func (m *Model) CreateFollowing(f *Following) error {
+	tx := m.db.Create(f)
+	return tx.Error
+}
+
+// get record id
+func (m *Model) GetUserFollowingID(f * Following) (uint, error) {
+	res := &Following{}
+	tx := m.db.First(res,
+		"userid = ? AND followingid = ?", f.UserID, f.FollowingID)
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+	return res.ID, nil
+}
+
+func (m * Model) DeleteFollowing(f *Following) error {
+	id, err := m.GetUserFollowingID(f)
+	if err != nil {
+		return err
+	}
+	tx := m.db.Delete(&Following{}, id)
+	return tx.Error
+}
+
+func (m *Model) GetAllFollowings(userID string) ([]uint, error) {
+	res := &[]Following{}
+	tx := m.db.Where("userid == ?", userID).Find(&res)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	followings := []uint{}
+	for _, f := range *res {
+		followings = append(followings, f.FollowingID)
+	}
+	return followings, nil
 }

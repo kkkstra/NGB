@@ -15,7 +15,8 @@ var (
 		&User{},
 		&Category{},
 		&Post{},
-		&UserThumbs{},
+		&Thumbs{},
+		&Following{},
 	}
 )
 
