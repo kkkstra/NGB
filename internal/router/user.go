@@ -23,6 +23,12 @@ func initUserRouters(r *gin.Engine) {
 			userAction.POST("/email", controller.EditUserEmail)
 			// 删除用户
 			userAction.DELETE("", controller.DeleteUser)
+			// 获取关注
+			userAction.GET("/following", controller.GetAllFollowings)
+			// 新增关注
+			userAction.POST("/following", controller.AddFollowing)
+			// 取消关注
+			userAction.DELETE("/following", controller.DeleteFollowing)
 		}
 	}
 	session := r.Group("/session")

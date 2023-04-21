@@ -8,24 +8,23 @@ import (
 
 type User struct {
 	gorm.Model
-	ID								uint		`gorm:"primaryKey,unique"`
-	Username					string	`gorm:"not null"`
-	Email							string	`gorm:"not null"`
-	Password					string	`gorm:"not null"`
-	Role							int			`gorm:"not null;default:0"`
-	Intro							string
-	UpdatePasswordAt	time.Time
+	Username         string `gorm:"not null"`
+	Email            string `gorm:"not null"`
+	Password         string `gorm:"not null"`
+	Role             int    `gorm:"not null;default:0"`
+	Intro            string
+	UpdatePasswordAt time.Time
 }
 
 type Following struct {
 	gorm.Model
-  UserID      uint `gorm:"primaryKey"`
-  FollowingID	uint `gorm:"primaryKey"`
+	UserID      uint `gorm:"primaryKey"`
+	FollowingID uint `gorm:"primaryKey"`
 }
 
 const (
 	roleCommon = 0
-	roleAdmin = 1
+	roleAdmin  = 1
 )
 
 func (m *Model) CreateUser(u *User) (uint, error) {
@@ -83,17 +82,17 @@ func (m *Model) CreateFollowing(f *Following) error {
 }
 
 // get record id
-func (m *Model) GetUserFollowingID(f * Following) (uint, error) {
+func (m *Model) GetUserFollowingID(f *Following) (uint, error) {
 	res := &Following{}
 	tx := m.db.First(res,
-		"userid = ? AND followingid = ?", f.UserID, f.FollowingID)
+		"user_id = ? AND following_id = ?", f.UserID, f.FollowingID)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
 	return res.ID, nil
 }
 
-func (m * Model) DeleteFollowing(f *Following) error {
+func (m *Model) DeleteFollowing(f *Following) error {
 	id, err := m.GetUserFollowingID(f)
 	if err != nil {
 		return err
@@ -104,7 +103,7 @@ func (m * Model) DeleteFollowing(f *Following) error {
 
 func (m *Model) GetAllFollowings(userID string) ([]uint, error) {
 	res := &[]Following{}
-	tx := m.db.Where("userid == ?", userID).Find(&res)
+	tx := m.db.Where("user_id = ?", userID).Find(&res)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

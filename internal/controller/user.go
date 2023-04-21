@@ -7,8 +7,8 @@ import (
 	"NGB/internal/model"
 	"NGB/internal/model/redis"
 	"NGB/pkg/jwt"
-	"NGB/pkg/util"
 	"NGB/pkg/logrus"
+	"NGB/pkg/util"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -279,6 +279,87 @@ func DeleteUser(c *gin.Context) {
 		}
 		response.Success(c, http.StatusOK, response.Data{}, "Delete user successfully! ")
 	}
+}
+
+func GetAllFollowings(c *gin.Context) {
+	username := c.Param("username")
+	m := model.GetModel()
+	u, err := m.FindUserByUsername(username)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to find user. ", err.Error())
+		return
+	}
+	userID := strconv.Itoa(int(u.ID))
+	followingsId, err := m.GetAllFollowings(userID)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to get followings. ", err.Error())
+		return
+	}
+	followings := []string{}
+	for _, following := range followingsId {
+		u, err = m.FindUserById(strconv.Itoa(int(following)))
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to find followings. ", err.Error())
+			return
+		}
+		followings = append(followings, u.Username)
+	}
+	response.Success(c, http.StatusOK, response.Data{"followings": followings}, "Get all followings. ")
+}
+
+func AddFollowing(c *gin.Context) {
+	UpdateFollowing(c, false)
+}
+
+func DeleteFollowing(c *gin.Context) {
+	UpdateFollowing(c, true)
+}
+
+func UpdateFollowing(c *gin.Context, delete bool) {
+	var req param.ReqAddFollowing
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
+		return
+	}
+	m := model.GetModel()
+
+	// 从jwt获取用户id
+	t, _ := c.Get("userdata")
+	userData := t.(map[string]string)
+	userID, _ := strconv.Atoi(userData["id"])
+
+	// 获取关注用户id
+	f, err := m.FindUserByUsername(req.Username)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to find following user. ", err.Error())
+		return
+	}
+	followingID := f.ID
+
+	// 删除关注
+	if delete {
+		err = m.DeleteFollowing(&model.Following{
+			UserID:      uint(userID),
+			FollowingID: followingID,
+		})
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to update following user. ", err.Error())
+			return
+		}
+		response.Success(c, http.StatusOK, response.Data{}, "Delete following successfully. ")
+		return
+	}
+
+	// 新增关注
+	err = m.CreateFollowing(&model.Following{
+		UserID:      uint(userID),
+		FollowingID: followingID,
+	})
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to update following user. ", err.Error())
+		return
+	}
+	response.Success(c, http.StatusOK, response.Data{}, "Add following successfully. ")
 }
 
 func checkAuthorization(c *gin.Context) (string, bool) {

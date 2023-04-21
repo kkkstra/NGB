@@ -31,3 +31,11 @@ type ReqEditPassword struct {
 type ReqEditEmail struct {
 	Email string `json:"email" binding:"required,max=128,email"`
 }
+
+type ReqAddFollowing struct {
+	Username string `json:"username" binding:"required,min=5,max=32"`
+}
+
+type ReqDeleteFollowing struct {
+	Username string `json:"username" binding:"required,min=5,max=32"`
+}

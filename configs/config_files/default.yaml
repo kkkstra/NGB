@@ -29,6 +29,9 @@ user:
         - 'GET'
         - '/users/:username/profile'
       -
+        - 'GET'
+        - '/users/:username/following'
+      -
         - 'POST'
         - '/session'
       -

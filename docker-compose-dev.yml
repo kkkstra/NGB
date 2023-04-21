@@ -32,8 +32,8 @@ services:
     ports:
       - 6379:6379
     volumes:
-      - "/data/redis/redis.conf:/etc/redis/redis.conf"
-      - "/data/redis/data:/data"
+      - "./data/redis/redis.conf:/etc/redis/redis.conf"
+      - "./data/redis/data:/data"
     command: /bin/bash -c "redis-server /etc/redis/redis.conf"
     networks:
       - ngb

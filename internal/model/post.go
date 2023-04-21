@@ -6,8 +6,8 @@ import (
 
 type Post struct {
 	gorm.Model
-	Title				string		`gorm:"not null"`
-	Content			string		`gorm:"not null"`
-	UserID			uint
-	CategoryID	uint
+	Title      string `gorm:"not null"`
+	Content    string `gorm:"not null"`
+	UserID     uint
+	CategoryID uint
 }
