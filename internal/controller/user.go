@@ -164,6 +164,7 @@ func GetUserProfile(c *gin.Context) {
 		return
 	}
 	userData := response.Data{
+		"id":       u.ID,
 		"username": u.Username,
 		"email":    u.Email,
 		"role":     u.Role,
@@ -362,6 +363,7 @@ func UpdateFollowing(c *gin.Context, delete bool) {
 	response.Success(c, http.StatusOK, response.Data{}, "Add following successfully. ")
 }
 
+// 检查是否具有操作权限（本人或管理员），并返回被操作用户的id
 func checkAuthorization(c *gin.Context) (string, bool) {
 	username := c.Param("username")
 	t, _ := c.Get("userdata")

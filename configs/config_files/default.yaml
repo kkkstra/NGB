@@ -37,6 +37,9 @@ user:
       -
         - 'GET'
         - '/session/email'
+      -
+        - 'GET'
+        - '/posts/:post_id'
   code:
     expire: 5
     mail-frequency: 1
