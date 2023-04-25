@@ -102,13 +102,13 @@ func (m *Model) DeleteFollowing(f *Following) error {
 }
 
 func (m *Model) GetAllFollowings(userID string) ([]uint, error) {
-	res := &[]Following{}
+	res := []Following{}
 	tx := m.db.Where("user_id = ?", userID).Find(&res)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
 	followings := []uint{}
-	for _, f := range *res {
+	for _, f := range res {
 		followings = append(followings, f.FollowingID)
 	}
 	return followings, nil

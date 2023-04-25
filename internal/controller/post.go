@@ -98,3 +98,146 @@ func DeletePost(c *gin.Context) {
 	}
 	response.Success(c, http.StatusOK, response.Data{}, "Delete the post successfully. ")
 }
+
+func GetAllThumbs(c *gin.Context) {
+	postID := c.Param("post_id")
+	m := model.GetModel()
+	userIDs, err := m.GetThumbsByPost(postID)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to get thumbs.", err.Error())
+		return
+	}
+	userDatas := []param.ResThumbsUser{}
+	for _, userID := range userIDs {
+		u, err := m.FindUserById(strconv.Itoa(int(userID)))
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to get thumbs.", err.Error())
+			return
+		}
+		userData := param.ResThumbsUser{
+			ID:       userID,
+			Username: u.Username,
+		}
+		userDatas = append(userDatas, userData)
+	}
+	response.Success(c, http.StatusOK, response.Data{"thumbs": userDatas}, "Get all thumbs successfully. ")
+}
+
+func AddThumbs(c *gin.Context) {
+	updateThumbs(c, false)
+}
+
+func DeleteThumbs(c *gin.Context) {
+	updateThumbs(c, true)
+}
+
+func updateThumbs(c *gin.Context, delete bool) {
+	t, _ := c.Get("userdata")
+	userData := t.(map[string]string)
+	userID, _ := strconv.Atoi(userData["id"])
+	postID := c.Param("post_id")
+	intPostID, _ := strconv.Atoi(postID)
+
+	m := model.GetModel()
+
+	if delete {
+		err := m.DeleteThumbs(&model.Thumbs{
+			UserID: uint(userID),
+			PostID: uint(intPostID),
+		})
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to delete thumbs. ", err.Error())
+			return
+		}
+		response.Success(c, http.StatusOK, response.Data{}, "Delete thumbs successfully. ")
+		return
+	}
+
+	// 检查是否已经点赞
+	_, err := m.GetThumbsID(&model.Thumbs{
+		UserID: uint(userID),
+		PostID: uint(intPostID),
+	})
+	if err == nil {
+		response.Error(c, http.StatusBadRequest, "Already liked the post. ")
+		return
+	}
+	_, err = m.CreateThumbs(&model.Thumbs{
+		UserID: uint(userID),
+		PostID: uint(intPostID),
+	})
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to add thumbs. ", err.Error())
+		return
+	}
+	response.Success(c, http.StatusOK, response.Data{}, "Add thumbs successfully. ")
+}
+
+func GetPostsByUser(c *gin.Context) {
+	username := c.Param("username")
+
+	m := model.GetModel()
+	// get user id
+	u, err := m.FindUserByUsername(username)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to get the user. ", err.Error())
+		return
+	}
+	posts, err := m.GetPostsByUser(strconv.Itoa(int(u.ID)))
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to get the posts. ", err.Error())
+		return
+	}
+	resPosts := []param.ResPost{}
+	for _, post := range posts {
+		category, err := m.GetCategory(strconv.Itoa(int(post.CategoryID)))
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to get the category of the post. ", err.Error())
+			return
+		}
+		resPost := param.ResPost{
+			Title:      post.Title,
+			Content:    post.Content,
+			CategoryID: post.CategoryID,
+			Category:   category.Name,
+			UserID:     post.UserID,
+			User:       u.Username,
+		}
+		resPosts = append(resPosts, resPost)
+	}
+	response.Success(c, http.StatusOK, response.Data{"posts": resPosts}, "Get all posts successfully. ")
+}
+
+func GetThumbsByUser(c *gin.Context) {
+	username := c.Param("username")
+
+	m := model.GetModel()
+	// get user id
+	u, err := m.FindUserByUsername(username)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to get the user. ", err.Error())
+		return
+	}
+	thumbs, err := m.GetThumbsByUser(strconv.Itoa(int(u.ID)))
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to get the thumbs. ", err.Error())
+		return
+	}
+	resThumbs := []param.ResUserThumbs{}
+	for _, id := range thumbs {
+		post, err := m.GetPost(strconv.Itoa(int(id)))
+		if err != nil {
+			response.Error(c, http.StatusInternalServerError, "Failed to get the post. ", err.Error())
+			return
+		}
+		thumbs := param.ResUserThumbs{
+			PostID: id,
+			Title:  post.Title,
+		}
+		resThumbs = append(resThumbs, thumbs)
+	}
+	response.Success(c, http.StatusOK, response.Data{"posts": resThumbs}, "Get all thumbs successfully. ")
+}
+
+func GetPostsByCategory(c *gin.Context) {
+}

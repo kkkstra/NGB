@@ -9,12 +9,20 @@ import (
 func initPostRouters(r *gin.Engine) {
 	posts := r.Group("/posts")
 	{
+		// 新增帖子
+		posts.POST("", controller.AddPost)
 		postAction := posts.Group("/:post_id")
 		{
 			// 获取帖子
 			postAction.GET("", controller.GetPost)
-			postAction.POST("", controller.AddPost)
+			// 删除帖子
 			postAction.DELETE("", controller.DeletePost)
+			// 获取帖子所有点赞者
+			postAction.GET("/thumbs", controller.GetAllThumbs)
+			// 点赞
+			postAction.POST("/thumbs", controller.AddThumbs)
+			// 取消点赞
+			postAction.DELETE("/thumbs", controller.DeleteThumbs)
 		}
 	}
 }

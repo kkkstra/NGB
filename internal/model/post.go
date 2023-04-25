@@ -21,6 +21,18 @@ func (m *Model) GetPost(id string) (*Post, error) {
 	return &post, nil
 }
 
+func (m *Model) GetPostsByCategory(id string) {
+}
+
+func (m *Model) GetPostsByUser(userID string) ([]Post, error) {
+	posts := []Post{}
+	tx := m.db.Where("user_id = ?", userID).Find(&posts)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return posts, nil
+}
+
 func (m *Model) CreatePost(p *Post) (uint, error) {
 	tx := m.db.Create(p)
 	if tx.Error != nil {

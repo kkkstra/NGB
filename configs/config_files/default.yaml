@@ -32,6 +32,12 @@ user:
         - 'GET'
         - '/users/:username/following'
       -
+        - 'GET'
+        - '/users/:username/posts'
+      -
+        - 'GET'
+        - '/users/:username/thumbs'
+      -
         - 'POST'
         - '/session'
       -
@@ -40,6 +46,15 @@ user:
       -
         - 'GET'
         - '/posts/:post_id'
+      -
+        - 'GET'
+        - '/posts/:post_id/thumbs'
+      -
+        - 'GET'
+        - '/categories'
+      -
+        - 'GET'
+        - '/categories/:category_id'
   code:
     expire: 5
     mail-frequency: 1

@@ -309,14 +309,14 @@ func GetAllFollowings(c *gin.Context) {
 }
 
 func AddFollowing(c *gin.Context) {
-	UpdateFollowing(c, false)
+	updateFollowing(c, false)
 }
 
 func DeleteFollowing(c *gin.Context) {
-	UpdateFollowing(c, true)
+	updateFollowing(c, true)
 }
 
-func UpdateFollowing(c *gin.Context, delete bool) {
+func updateFollowing(c *gin.Context, delete bool) {
 	var req param.ReqAddFollowing
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Error(c, http.StatusBadRequest, "Failed to bind json! ", err.Error())
@@ -351,6 +351,15 @@ func UpdateFollowing(c *gin.Context, delete bool) {
 		return
 	}
 
+	// 检查是否已经关注
+	_, err = m.GetUserFollowingID(&model.Following{
+		UserID:      uint(userID),
+		FollowingID: followingID,
+	})
+	if err == nil {
+		response.Error(c, http.StatusBadRequest, "Already followed the user. ")
+		return
+	}
 	// 新增关注
 	err = m.CreateFollowing(&model.Following{
 		UserID:      uint(userID),

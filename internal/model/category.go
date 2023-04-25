@@ -10,6 +10,15 @@ type Category struct {
 	Description string `gorm:"not null"`
 }
 
+func (m *Model) GetAllCategories() ([]Category, error) {
+	categories := []Category{}
+	tx := m.db.Find(&categories)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return categories, nil
+}
+
 func (m *Model) GetCategory(id string) (*Category, error) {
 	var category Category
 	tx := m.db.First(&category, id)

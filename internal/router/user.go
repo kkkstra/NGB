@@ -29,6 +29,10 @@ func initUserRouters(r *gin.Engine) {
 			userAction.POST("/following", controller.AddFollowing)
 			// 取消关注
 			userAction.DELETE("/following", controller.DeleteFollowing)
+			// 获取用户发表的帖子
+			userAction.GET("/posts", controller.GetPostsByUser)
+			// 获取用户点赞的帖子
+			userAction.GET("/thumbs", controller.GetThumbsByUser)
 		}
 	}
 	session := r.Group("/session")
