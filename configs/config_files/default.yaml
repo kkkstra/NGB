@@ -1,17 +1,66 @@
 app:
-  addr: ":8111"
+  addr: ':8111'
   debug: true
 database:
-  host: db
-  port: "5432"
-  user: "postgres"
-  password: "postgres"
-  dbname: "ngb"
+  sql:
+    host: db
+    port: '5432'
+    user: 'postgres'
+    password: 'postgres'
+    dbname: 'ngb'
+  redis:
+    host: redis
+    port: 6379
+    password: 'kkkstra-ngb'
+    db: 0
 log:
-  filepath: "/var/log"
-  filename-prefix: "log_backend"
+  filepath: '/var/log'
+  filename-prefix: 'log_backend'
 user:
   jwt:
     expire: 168
-    issuer: "ngb.kkkstra.cn"
-    key: "kkkstra"
+    issuer: 'ngb.kkkstra.cn'
+    key: 'kkkstra'
+    skip-paths:
+      - 
+        - 'POST'
+        - '/users'
+      - 
+        - 'GET'
+        - '/users/:username/profile'
+      -
+        - 'GET'
+        - '/users/:username/following'
+      -
+        - 'GET'
+        - '/users/:username/posts'
+      -
+        - 'GET'
+        - '/users/:username/thumbs'
+      -
+        - 'POST'
+        - '/session'
+      -
+        - 'GET'
+        - '/session/email'
+      -
+        - 'GET'
+        - '/posts/:post_id'
+      -
+        - 'GET'
+        - '/posts/:post_id/thumbs'
+      -
+        - 'GET'
+        - '/categories'
+      -
+        - 'GET'
+        - '/categories/:category_id'
+  code:
+    expire: 5
+    mail-frequency: 1
+email:
+  addr: 'smtp.qq.com:25'
+  sender: 'NGB'
+  account: 'patrick46@qq.com'
+  code: 'dsmyzmiavgnwcadd'
+  server: 'smtp.qq.com'

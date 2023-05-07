@@ -23,11 +23,22 @@ func initUserRouters(r *gin.Engine) {
 			userAction.POST("/email", controller.EditUserEmail)
 			// 删除用户
 			userAction.DELETE("", controller.DeleteUser)
+			// 获取关注
+			userAction.GET("/following", controller.GetAllFollowings)
+			// 新增关注
+			userAction.POST("/following", controller.AddFollowing)
+			// 取消关注
+			userAction.DELETE("/following", controller.DeleteFollowing)
+			// 获取用户发表的帖子
+			userAction.GET("/posts", controller.GetPostsByUser)
+			// 获取用户点赞的帖子
+			userAction.GET("/thumbs", controller.GetThumbsByUser)
 		}
 	}
 	session := r.Group("/session")
 	{
 		// 登录
 		session.POST("", controller.SignIn)
+		session.GET("/email", controller.GetSignInCode)
 	}
 }

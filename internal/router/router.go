@@ -6,4 +6,6 @@ import (
 
 func InitRouters(r *gin.Engine) {
 	initUserRouters(r)
+	initPostRouters(r)
+	initCategoryRouters(r)
 }

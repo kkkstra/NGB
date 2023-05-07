@@ -38,5 +38,7 @@ func Error(c *gin.Context, status int, msg string, err ...string) {
 			Msg:  msg,
 		})
 	}
-	logrus.Logger.Error(err)
+	if err != nil {
+		logrus.Logger.Error(err)
+	}
 }
