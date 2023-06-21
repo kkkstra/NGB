@@ -9,6 +9,8 @@ import (
 func initPostRouters(r *gin.Engine) {
 	posts := r.Group("/posts")
 	{
+		// 搜索帖子
+		posts.GET("", controller.GetPostsByKeywords)
 		// 新增帖子
 		posts.POST("", controller.AddPost)
 		postAction := posts.Group("/:post_id")

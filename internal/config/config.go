@@ -1,6 +1,7 @@
 package config
 
 import (
+	"NGB/pkg/elasticsearch"
 	"fmt"
 	"os"
 
@@ -8,16 +9,17 @@ import (
 )
 
 type Config struct {
-	App      app      `yaml:"app"`
-	Database database `yaml:"database"`
-	Log      log      `yaml:"log"`
-	User     userConf `yaml:"user"`
-	Email    email    `yaml:"email"`
+	App           app                               `yaml:"app"`
+	Database      database                          `yaml:"database"`
+	Log           log                               `yaml:"log"`
+	User          userConf                          `yaml:"user"`
+	Email         email                             `yaml:"email"`
+	Elasticsearch elasticsearch.ElasticsearchConfig `yaml:"elasticsearch"`
 }
 
 type app struct {
-	Addr  string `yaml:"addr"`
-	Debug bool   `yaml:"debug"`
+	Address string `yaml:"address"`
+	Debug   bool   `yaml:"debug"`
 }
 
 type database struct {

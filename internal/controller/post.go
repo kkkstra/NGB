@@ -39,6 +39,10 @@ func GetPost(c *gin.Context) {
 	response.Success(c, http.StatusOK, postData, "Get post successfully. ")
 }
 
+func GetPostsByKeywords(c *gin.Context) {
+
+}
+
 func AddPost(c *gin.Context) {
 	t, _ := c.Get("userdata")
 	userData := t.(map[string]string)

@@ -1,5 +1,5 @@
 app:
-  addr: ':8111'
+  address: ':8111'
   debug: true
 database:
   sql:
@@ -64,3 +64,6 @@ email:
   account: 'patrick46@qq.com'
   code: 'dsmyzmiavgnwcadd'
   server: 'smtp.qq.com'
+elasticsearch:
+  addresses:
+    - "https://172.17.0.1:9200"
